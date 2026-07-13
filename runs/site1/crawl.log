@@ -1,0 +1,131 @@
+2026-07-13 09:48:56 [scrapy.utils.log] INFO: Scrapy 2.17.0 started (bot: image_crawler)
+2026-07-13 09:48:56 [scrapy.utils.log] INFO: Versions:
+{'lxml': '6.1.1',
+ 'libxml2': '2.11.9',
+ 'cssselect': '1.4.0',
+ 'parsel': '1.11.0',
+ 'w3lib': '2.4.1',
+ 'Twisted': '26.4.0',
+ 'Python': '3.13.3 (tags/v3.13.3:6280bb5, Apr  8 2025, 14:47:33) [MSC v.1943 '
+           '64 bit (AMD64)]',
+ 'pyOpenSSL': '26.3.0 (OpenSSL 4.0.1 9 Jun 2026)',
+ 'cryptography': '49.0.0',
+ 'Platform': 'Windows-11-10.0.26200-SP0'}
+2026-07-13 09:48:56 [scrapy.addons] INFO: Enabled addons:
+[]
+2026-07-13 09:48:56 [scrapy.extensions.telnet] INFO: Telnet Password: 3dd842575447db89
+2026-07-13 09:48:56 [scrapy.middleware] INFO: Enabled extensions:
+['scrapy.extensions.corestats.CoreStats',
+ 'scrapy.extensions.logcount.LogCount',
+ 'scrapy.extensions.telnet.TelnetConsole',
+ 'scrapy.extensions.logstats.LogStats',
+ 'scrapy.extensions.throttle.AutoThrottle']
+2026-07-13 09:48:56 [scrapy.crawler] INFO: Overridden settings:
+{'AUTOTHROTTLE_ENABLED': True,
+ 'AUTOTHROTTLE_MAX_DELAY': 10,
+ 'AUTOTHROTTLE_START_DELAY': 0.5,
+ 'AUTOTHROTTLE_TARGET_CONCURRENCY': 4.0,
+ 'BOT_NAME': 'image_crawler',
+ 'DEPTH_LIMIT': 5,
+ 'DOWNLOAD_DELAY': 0.5,
+ 'HTTPCACHE_DIR': 'runs/site1\\httpcache',
+ 'HTTPCACHE_ENABLED': True,
+ 'HTTPCACHE_EXPIRATION_SECS': 86400,
+ 'HTTPCACHE_IGNORE_HTTP_CODES': [301, 302, 401, 403, 404, 500, 502, 503],
+ 'IMAGES_STORE': 'runs/site1',
+ 'LOG_FILE': 'runs/site1\\crawl.log',
+ 'LOG_LEVEL': 'INFO',
+ 'NEWSPIDER_MODULE': 'image_crawler.spiders',
+ 'RETRY_HTTP_CODES': [500, 502, 503, 504, 408, 429],
+ 'RETRY_TIMES': 3,
+ 'ROBOTSTXT_OBEY': True,
+ 'SPIDER_MODULES': ['image_crawler.spiders']}
+2026-07-13 09:48:56 [scrapy.middleware] INFO: Enabled downloader middlewares:
+['scrapy.downloadermiddlewares.offsite.OffsiteMiddleware',
+ 'scrapy.downloadermiddlewares.robotstxt.RobotsTxtMiddleware',
+ 'scrapy.downloadermiddlewares.httpauth.HttpAuthMiddleware',
+ 'scrapy.downloadermiddlewares.downloadtimeout.DownloadTimeoutMiddleware',
+ 'scrapy.downloadermiddlewares.defaultheaders.DefaultHeadersMiddleware',
+ 'image_crawler.middlewares.RotateUserAgentMiddleware',
+ 'scrapy.downloadermiddlewares.retry.RetryMiddleware',
+ 'scrapy.downloadermiddlewares.redirect.MetaRefreshMiddleware',
+ 'scrapy.downloadermiddlewares.httpcompression.HttpCompressionMiddleware',
+ 'scrapy.downloadermiddlewares.redirect.RedirectMiddleware',
+ 'scrapy.downloadermiddlewares.cookies.CookiesMiddleware',
+ 'scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware',
+ 'scrapy.downloadermiddlewares.stats.DownloaderStats',
+ 'scrapy.downloadermiddlewares.httpcache.HttpCacheMiddleware']
+2026-07-13 09:48:56 [py.warnings] WARNING: D:\projects\web-scaping\image_crawler\.venv\Lib\site-packages\scrapy\core\downloader\middleware.py:46: ScrapyDeprecationWarning: RotateUserAgentMiddleware.process_request() requires a spider argument, this is deprecated and the argument will not be passed in future Scrapy versions. If you need to access the spider instance you can save the crawler instance passed to from_crawler() and use its spider attribute.
+  self._check_mw_method_spider_arg(mw.process_request)
+
+2026-07-13 09:48:56 [scrapy.middleware] INFO: Enabled spider middlewares:
+['scrapy.spidermiddlewares.start.StartSpiderMiddleware',
+ 'scrapy.spidermiddlewares.httperror.HttpErrorMiddleware',
+ 'scrapy.spidermiddlewares.referer.RefererMiddleware',
+ 'scrapy.spidermiddlewares.urllength.UrlLengthMiddleware',
+ 'scrapy.spidermiddlewares.depth.DepthMiddleware']
+2026-07-13 09:48:56 [scrapy.middleware] INFO: Enabled item pipelines:
+['image_crawler.pipelines.DedupImagesPipeline',
+ 'image_crawler.pipelines.MetadataExportPipeline']
+2026-07-13 09:48:56 [py.warnings] WARNING: D:\projects\web-scaping\image_crawler\.venv\Lib\site-packages\scrapy\pipelines\__init__.py:43: ScrapyDeprecationWarning: DedupImagesPipeline.open_spider() requires a spider argument, this is deprecated and the argument will not be passed in future Scrapy versions. If you need to access the spider instance you can save the crawler instance passed to from_crawler() and use its spider attribute.
+  self._check_mw_method_spider_arg(mw.open_spider)
+
+2026-07-13 09:48:56 [py.warnings] WARNING: D:\projects\web-scaping\image_crawler\.venv\Lib\site-packages\scrapy\pipelines\__init__.py:46: ScrapyDeprecationWarning: DedupImagesPipeline.close_spider() requires a spider argument, this is deprecated and the argument will not be passed in future Scrapy versions. If you need to access the spider instance you can save the crawler instance passed to from_crawler() and use its spider attribute.
+  self._check_mw_method_spider_arg(mw.close_spider)
+
+2026-07-13 09:48:56 [py.warnings] WARNING: D:\projects\web-scaping\image_crawler\.venv\Lib\site-packages\scrapy\pipelines\__init__.py:43: ScrapyDeprecationWarning: MetadataExportPipeline.open_spider() requires a spider argument, this is deprecated and the argument will not be passed in future Scrapy versions. If you need to access the spider instance you can save the crawler instance passed to from_crawler() and use its spider attribute.
+  self._check_mw_method_spider_arg(mw.open_spider)
+
+2026-07-13 09:48:56 [py.warnings] WARNING: D:\projects\web-scaping\image_crawler\.venv\Lib\site-packages\scrapy\pipelines\__init__.py:46: ScrapyDeprecationWarning: MetadataExportPipeline.close_spider() requires a spider argument, this is deprecated and the argument will not be passed in future Scrapy versions. If you need to access the spider instance you can save the crawler instance passed to from_crawler() and use its spider attribute.
+  self._check_mw_method_spider_arg(mw.close_spider)
+
+2026-07-13 09:48:56 [py.warnings] WARNING: D:\projects\web-scaping\image_crawler\.venv\Lib\site-packages\scrapy\pipelines\__init__.py:49: ScrapyDeprecationWarning: MetadataExportPipeline.process_item() requires a spider argument, this is deprecated and the argument will not be passed in future Scrapy versions. If you need to access the spider instance you can save the crawler instance passed to from_crawler() and use its spider attribute.
+  self._check_mw_method_spider_arg(mw.process_item)
+
+2026-07-13 09:48:56 [scrapy.core.engine] INFO: Spider opened
+2026-07-13 09:48:56 [py.warnings] WARNING: D:\projects\web-scaping\image_crawler\image_crawler\pipelines.py:32: ScrapyDeprecationWarning: Passing a 'spider' argument to MediaPipeline.open_spider() is deprecated and the argument will be removed in a future Scrapy version.
+  super().open_spider(spider)
+
+2026-07-13 09:48:56 [scrapy.extensions.logstats] INFO: Crawled 0 pages (at 0 pages/min), scraped 0 items (at 0 items/min)
+2026-07-13 09:48:56 [scrapy.extensions.telnet] INFO: Telnet console listening on 127.0.0.1:6024
+2026-07-13 09:48:58 [imagespider] WARNING: Could not read image metadata for runs/site1\uncategorized/65e0b157001fb70e20e96c84_FCB_998b4995.svg
+2026-07-13 09:49:00 [imagespider] WARNING: Could not read image metadata for runs/site1\uncategorized/65e0b157782f260150d22378_LI_01282859.svg
+2026-07-13 09:49:02 [scrapy.core.engine] INFO: Closing spider (finished)
+2026-07-13 09:49:02 [imagespider] INFO: Exported 10 image records to runs/site1\metadata.csv and runs/site1\metadata.json
+2026-07-13 09:49:02 [scrapy.statscollectors] INFO: Dumping Scrapy stats:
+{'downloader/exception_count': 1,
+ 'downloader/exception_type_count/scrapy.exceptions.IgnoreRequest': 1,
+ 'downloader/request_bytes': 4500,
+ 'downloader/request_count': 12,
+ 'downloader/request_method_count/GET': 12,
+ 'downloader/response_bytes': 1391365,
+ 'downloader/response_count': 12,
+ 'downloader/response_status_count/200': 12,
+ 'elapsed_time_seconds': 6.440940100001171,
+ 'file_count': 10,
+ 'file_status_count/downloaded': 10,
+ 'finish_reason': 'finished',
+ 'finish_time': datetime.datetime(2026, 7, 13, 6, 49, 2, 742727, tzinfo=datetime.timezone.utc),
+ 'httpcache/firsthand': 12,
+ 'httpcache/miss': 12,
+ 'httpcache/store': 12,
+ 'httpcompression/response_bytes': 39663,
+ 'httpcompression/response_count': 4,
+ 'images/downloaded': 10,
+ 'item_scraped_count': 10,
+ 'items_per_minute': 100.0,
+ 'log_count/INFO': 4,
+ 'log_count/WARNING': 2,
+ 'offsite/domains': 1,
+ 'offsite/filtered': 1,
+ 'response_received_count': 12,
+ 'responses_per_minute': 120.0,
+ 'robotstxt/request_count': 2,
+ 'robotstxt/response_count': 1,
+ 'robotstxt/response_status_count/200': 1,
+ 'scheduler/dequeued': 1,
+ 'scheduler/dequeued/memory': 1,
+ 'scheduler/enqueued': 1,
+ 'scheduler/enqueued/memory': 1,
+ 'start_time': datetime.datetime(2026, 7, 13, 6, 48, 56, 301751, tzinfo=datetime.timezone.utc)}
+2026-07-13 09:49:02 [scrapy.core.engine] INFO: Spider closed (finished)
