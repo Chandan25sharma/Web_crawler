@@ -1,0 +1,19 @@
+Date: Mon, 13 Jul 2026 11:13:14 GMT
+Content-Type: text/html; charset=utf-8
+Set-Cookie: _cfuvid=c9wM1qC5mSXP5y32kQRWNqKAehB_s4wLjUaJyhUT_Lw-1783941194.257157-1.0.1.1-dWh9YpY9Ca6Qxx.XRxdLinR4EaZumz4JVxd6gvRF1SU; HttpOnly; SameSite=None; Secure; Path=/; Domain=www.al-mahroos.sa
+Cf-Ray: a1a7db701a0f524a-MXP
+Cf-Cache-Status: HIT
+Age: 599496
+Content-Encoding: gzip
+Last-Modified: Sun, 12 Jul 2026 23:16:38 GMT
+Link: <https://cdn.prod.website-files.com>; rel=preconnect; crossorigin, <https://cdn.prod.website-files.com/65e0655a80952f942f83458b/css/al-mahroos.webflow.shared.2558670ea.min.css>; rel=preload; as=style; crossorigin; integrity="sha384-JVhnDqbCgvznXKyT68beqCdsuKhzS4jOkmZjlUdb8E9Q/qBNZq/q/OqxaADvNWJV", <https://fonts.googleapis.com>; rel=preconnect, <https://fonts.gstatic.com>; rel=preconnect; crossorigin
+Server: cloudflare
+Strict-Transport-Security: max-age=31536000
+Vary: accept-encoding
+Content-Security-Policy: frame-ancestors 'self'
+Surrogate-Control: max-age=2147483647
+Surrogate-Key: www.al-mahroos.sa 65e0655a80952f942f83458b pageId:65e260e84733b7850cd11c25
+X-Frame-Options: SAMEORIGIN
+X-Lambda-Id: 1e32f462-0d25-419a-8854-dcb705edaf4c
+X-Wf-Region: us-east-1
+Alt-Svc: h3=":443"; ma=86400

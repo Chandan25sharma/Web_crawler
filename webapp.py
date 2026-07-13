@@ -47,7 +47,11 @@ def _save_tags(tags: dict[str, list[str]]) -> None:
 
 @app.get("/")
 def index():
-    return send_file(BASE_DIR / "web" / "index.html")
+    # This page changes often during dev; send_file's default caching headers
+    # were making browsers serve a stale copy even on a normal refresh.
+    resp = send_file(BASE_DIR / "web" / "index.html")
+    resp.headers["Cache-Control"] = "no-store"
+    return resp
 
 
 @app.post("/api/start")
@@ -72,6 +76,8 @@ def start_crawl():
             cmd.append("--include-videos")
         if body.get("max_images"):
             cmd += ["--max-images", str(int(body["max_images"]))]
+        if body.get("keywords"):
+            cmd += ["--keywords", str(body["keywords"])]
 
         # crawl.log/crawl_state.db carry all the output the UI needs; the
         # subprocess's own stdout/stderr aren't polled, so just discard them.

@@ -5,11 +5,13 @@
 <title>Image/Video Crawler</title>
 <style>
   * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
   body {
-    margin: 0; background: #0f1115; color: #e6e6e6;
+    display: flex; flex-direction: column; overflow: hidden;
+    background: #0f1115; color: #e6e6e6;
     font-family: -apple-system, Segoe UI, Roboto, sans-serif;
   }
-  header { padding: 16px 20px; border-bottom: 1px solid #262a33; }
+  header { flex: 0 0 auto; padding: 16px 20px; border-bottom: 1px solid #262a33; }
   header h1 { margin: 0 0 12px; font-size: 18px; font-weight: 600; }
 
   form { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
@@ -18,6 +20,7 @@
     padding: 8px 10px; border-radius: 6px; font-size: 13px;
   }
   #url { flex: 1 1 320px; min-width: 220px; }
+  #keywords { flex: 1 1 220px; min-width: 160px; }
   #maxImages { width: 110px; }
   label.chk { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #b6bcc8; }
   button {
@@ -30,19 +33,39 @@
   #status .dot { display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:6px; background:#4b5160; }
   #status.running .dot { background:#37b24d; }
 
-  main { display: flex; gap: 0; height: calc(100vh - 96px); }
-  #filesPanel { flex: 1; display: flex; flex-direction: column; min-width: 0; }
-  #filterBar { padding: 10px 20px; border-bottom: 1px solid #262a33; }
-  #filterBar input { width: 100%; max-width: 420px; }
-  #grid {
-    flex: 1; overflow-y: auto; padding: 16px 20px;
-    display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px;
+  /* main fills all remaining space below the header; no magic-number heights */
+  main { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+
+  #filesPanel { flex: 1; min-height: 80px; display: flex; flex-direction: column; }
+  #filterBar { flex: 0 0 auto; padding: 10px 20px; border-bottom: 1px solid #262a33; display: flex; gap: 10px; align-items: center; }
+  #filterBar input { flex: 1; max-width: 420px; }
+  #fileCount { font-size: 12px; color: #8a93a3; white-space: nowrap; }
+
+  /* File-manager-style grid/list view toggle */
+  #viewToggle { display: flex; gap: 2px; background: #1a1d24; border: 1px solid #333844; border-radius: 6px; padding: 2px; }
+  #viewToggle button {
+    background: transparent; color: #8a93a3; padding: 5px 10px; font-size: 12px; border-radius: 4px;
   }
-  .card { background: #171a21; border: 1px solid #262a33; border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; }
-  .thumb { background: #0b0d11; height: 130px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+  #viewToggle button.active { background: #3b5bdb; color: white; }
+
+  #grid {
+    flex: 1; min-height: 0; overflow-y: auto; padding: 16px 20px;
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    grid-auto-rows: min-content; align-content: start; align-items: start;
+    gap: 14px;
+  }
+  #gridError { color: #ff6b6b; font-size: 12px; padding: 0 20px 12px; }
+  #gridEmpty { color: #6b7280; font-size: 13px; padding: 20px; }
+
+  .card { background: #171a21; border: 1px solid #262a33; border-radius: 8px; display: flex; flex-direction: column; }
+  .thumb { background: #0b0d11; height: 130px; flex: 0 0 130px; display: flex; align-items: center; justify-content: center; overflow: hidden; border-radius: 8px 8px 0 0; }
   .thumb img, .thumb video { max-width: 100%; max-height: 130px; object-fit: contain; }
-  .card .meta { padding: 8px 10px; font-size: 11px; color: #9aa2b1; }
-  .card .name { font-size: 12px; color: #e6e6e6; word-break: break-all; margin-bottom: 4px; }
+  .thumb-fallback { font-size: 38px; opacity: 0.35; }
+  .card .meta { padding: 8px 10px 10px; font-size: 11px; color: #b6bcc8; min-width: 0; }
+  .card .name {
+    font-size: 12.5px; font-weight: 500; color: #ffffff;
+    word-break: break-all; line-height: 1.4; margin-bottom: 6px;
+  }
   .badge { display: inline-block; font-size: 10px; padding: 1px 6px; border-radius: 10px; background: #263042; color: #7fa8ff; margin-right: 4px; }
   .badge.video { background: #3a2540; color: #d693ff; }
   .tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
@@ -51,10 +74,26 @@
   .tagform input { flex: 1; padding: 4px 6px; font-size: 11px; }
   .tagform button { padding: 4px 8px; font-size: 11px; }
 
-  #logPanel { width: 420px; border-left: 1px solid #262a33; display: flex; flex-direction: column; }
-  #logHeader { padding: 10px 14px; font-size: 12px; color: #8a93a3; border-bottom: 1px solid #262a33; }
+  /* List view: one file per row, small thumbnail on the left -- like a file manager's detail view */
+  #grid.list-view { grid-template-columns: 1fr; gap: 6px; }
+  #grid.list-view .card { flex-direction: row; align-items: center; }
+  #grid.list-view .thumb { width: 56px; height: 56px; flex: 0 0 56px; border-radius: 8px 0 0 8px; }
+  #grid.list-view .thumb img, #grid.list-view .thumb video { max-height: 56px; }
+  #grid.list-view .thumb-fallback { font-size: 22px; }
+  #grid.list-view .meta { flex: 1; display: flex; align-items: center; gap: 10px; padding: 6px 12px; flex-wrap: wrap; }
+  #grid.list-view .name { margin-bottom: 0; flex: 1 1 260px; }
+  #grid.list-view .tags, #grid.list-view .tagform { margin-top: 0; flex: 0 0 auto; }
+
+  /* Log panel: bottom "terminal", resizable by dragging the handle above it */
+  #resizeHandle {
+    flex: 0 0 6px; cursor: row-resize; background: #1a1d24;
+    border-top: 1px solid #262a33; border-bottom: 1px solid #262a33;
+  }
+  #resizeHandle:hover { background: #262a33; }
+  #logPanel { flex: 0 0 240px; min-height: 60px; display: flex; flex-direction: column; }
+  #logHeader { flex: 0 0 auto; padding: 8px 14px; font-size: 12px; color: #8a93a3; }
   #log {
-    flex: 1; overflow-y: auto; background: #05070a; color: #7ee787;
+    flex: 1; min-height: 0; overflow-y: auto; background: #05070a; color: #7ee787;
     font-family: Consolas, Menlo, monospace; font-size: 11px; padding: 10px 14px; white-space: pre-wrap;
   }
 </style>
@@ -65,6 +104,7 @@
   <h1>Image / Video Crawler</h1>
   <form id="startForm">
     <input id="url" type="text" placeholder="https://your-site.com/" required>
+    <input id="keywords" type="text" placeholder="Keywords, comma separated (blank = all), e.g. rice, basmati">
     <label class="chk"><input id="includeVideos" type="checkbox"> Include videos</label>
     <input id="maxImages" type="number" min="1" placeholder="Max (blank = unlimited)">
     <button id="startBtn" type="submit">Start crawl</button>
@@ -75,9 +115,17 @@
 
 <main>
   <div id="filesPanel">
-    <div id="filterBar"><input id="filter" type="text" placeholder="Filter by filename, alt text, page title, or tag..."></div>
+    <div id="filterBar">
+      <input id="filter" type="text" placeholder="Filter by filename, alt text, page title, or tag...">
+      <span id="fileCount"></span>
+      <div id="viewToggle">
+        <button type="button" id="gridViewBtn" class="active">Grid</button>
+        <button type="button" id="listViewBtn">List</button>
+      </div>
+    </div>
     <div id="grid"></div>
   </div>
+  <div id="resizeHandle" title="Drag to resize the log panel"></div>
   <div id="logPanel">
     <div id="logHeader">Crawl log</div>
     <div id="log"></div>
@@ -91,17 +139,21 @@ const stopBtn = document.getElementById('stopBtn');
 const statusEl = document.getElementById('status');
 const statusText = document.getElementById('statusText');
 const logEl = document.getElementById('log');
+const logPanelEl = document.getElementById('logPanel');
 const gridEl = document.getElementById('grid');
 const filterEl = document.getElementById('filter');
+const fileCountEl = document.getElementById('fileCount');
 
 let lastDownloaded = -1;
 
 startForm.addEventListener('submit', async (e) => {
   e.preventDefault();
   const url = document.getElementById('url').value.trim();
+  const keywords = document.getElementById('keywords').value.trim();
   const include_videos = document.getElementById('includeVideos').checked;
   const maxImagesVal = document.getElementById('maxImages').value;
   const body = { url, include_videos };
+  if (keywords) body.keywords = keywords;
   if (maxImagesVal) body.max_images = parseInt(maxImagesVal, 10);
 
   const res = await fetch('/api/start', {
@@ -121,6 +173,34 @@ filterEl.addEventListener('input', () => {
   filterTimer = setTimeout(loadFiles, 300);
 });
 
+// Grid/list view toggle, like a file manager -- remembered across reloads.
+const gridViewBtn = document.getElementById('gridViewBtn');
+const listViewBtn = document.getElementById('listViewBtn');
+function setView(mode) {
+  gridEl.classList.toggle('list-view', mode === 'list');
+  gridViewBtn.classList.toggle('active', mode === 'grid');
+  listViewBtn.classList.toggle('active', mode === 'list');
+  localStorage.setItem('viewMode', mode);
+}
+gridViewBtn.addEventListener('click', () => setView('grid'));
+listViewBtn.addEventListener('click', () => setView('list'));
+setView(localStorage.getItem('viewMode') || 'grid');
+
+// Drag the handle to resize the bottom log panel, like a normal split pane.
+(function setupResize() {
+  const handle = document.getElementById('resizeHandle');
+  let dragging = false;
+  handle.addEventListener('mousedown', (e) => { dragging = true; e.preventDefault(); });
+  document.addEventListener('mousemove', (e) => {
+    if (!dragging) return;
+    const mainRect = document.querySelector('main').getBoundingClientRect();
+    const newLogHeight = mainRect.bottom - e.clientY;
+    const clamped = Math.min(Math.max(newLogHeight, 60), mainRect.height - 100);
+    logPanelEl.style.flexBasis = clamped + 'px';
+  });
+  document.addEventListener('mouseup', () => { dragging = false; });
+})();
+
 function fmtSize(bytes) {
   if (!bytes) return '';
   if (bytes < 1024) return bytes + ' B';
@@ -139,18 +219,23 @@ async function addTag(localPath, inputEl) {
   loadFiles();
 }
 
+function showFallback(el, isVideo) {
+  const fallback = document.createElement('div');
+  fallback.className = 'thumb-fallback';
+  fallback.textContent = isVideo ? '\u{1F3AC}' : '\u{1F5BC}\u{FE0F}'; // clapperboard / picture
+  el.replaceWith(fallback);
+}
+
 function renderCard(rec) {
   const src = '/media/' + rec.local_path.split('/').map(encodeURIComponent).join('/');
   const isVideo = rec.media_type === 'video';
-  const thumb = isVideo
-    ? `<video src="${src}" controls muted></video>`
-    : `<img src="${src}" loading="lazy" alt="">`;
   const dims = (rec.width && rec.height) ? `${rec.width}x${rec.height}` : '';
   const tagPills = (rec.tags || []).map(t => `<span class="tag">${t}</span>`).join('');
+
   const card = document.createElement('div');
   card.className = 'card';
   card.innerHTML = `
-    <div class="thumb">${thumb}</div>
+    <div class="thumb"></div>
     <div class="meta">
       <div class="name">${rec.local_path}</div>
       <span class="badge ${isVideo ? 'video' : ''}">${rec.media_type}</span>
@@ -162,6 +247,15 @@ function renderCard(rec) {
       </div>
     </div>
   `;
+
+  const thumbEl = card.querySelector('.thumb');
+  const mediaEl = document.createElement(isVideo ? 'video' : 'img');
+  mediaEl.src = src;
+  mediaEl.loading = 'lazy';
+  if (isVideo) { mediaEl.controls = true; mediaEl.muted = true; } else { mediaEl.alt = ''; }
+  mediaEl.addEventListener('error', () => showFallback(mediaEl, isVideo));
+  thumbEl.appendChild(mediaEl);
+
   const tagInput = card.querySelector('.tagform input');
   const tagBtn = card.querySelector('.tagform button');
   tagBtn.addEventListener('click', () => addTag(rec.local_path, tagInput));
@@ -171,29 +265,43 @@ function renderCard(rec) {
 
 async function loadFiles() {
   const q = filterEl.value.trim();
-  const res = await fetch('/api/files' + (q ? '?q=' + encodeURIComponent(q) : ''));
-  const records = await res.json();
-  gridEl.innerHTML = '';
-  records.forEach(rec => gridEl.appendChild(renderCard(rec)));
+  try {
+    const res = await fetch('/api/files' + (q ? '?q=' + encodeURIComponent(q) : ''));
+    if (!res.ok) throw new Error('server returned ' + res.status);
+    const records = await res.json();
+    gridEl.innerHTML = '';
+    if (records.length === 0) {
+      gridEl.innerHTML = '<div id="gridEmpty">No files yet.</div>';
+    } else {
+      records.forEach(rec => gridEl.appendChild(renderCard(rec)));
+    }
+    fileCountEl.textContent = records.length + ' shown';
+  } catch (err) {
+    gridEl.innerHTML = `<div id="gridError">Failed to load file list: ${err.message}</div>`;
+  }
 }
 
 async function pollStatus() {
-  const res = await fetch('/api/status');
-  const data = await res.json();
+  try {
+    const res = await fetch('/api/status');
+    const data = await res.json();
 
-  statusEl.classList.toggle('running', data.running);
-  statusText.textContent = data.running
-    ? `Running - ${data.downloaded} downloaded - ${data.elapsed_seconds}s elapsed`
-    : `Idle - ${data.downloaded} downloaded`;
-  startBtn.disabled = data.running;
-  stopBtn.disabled = !data.running;
+    statusEl.classList.toggle('running', data.running);
+    statusText.textContent = data.running
+      ? `Running - ${data.downloaded} downloaded - ${data.elapsed_seconds}s elapsed`
+      : `Idle - ${data.downloaded} downloaded`;
+    startBtn.disabled = data.running;
+    stopBtn.disabled = !data.running;
 
-  logEl.textContent = data.log.join('\n');
-  logEl.scrollTop = logEl.scrollHeight;
+    logEl.textContent = data.log.join('\n');
+    logEl.scrollTop = logEl.scrollHeight;
 
-  if (data.downloaded !== lastDownloaded) {
-    lastDownloaded = data.downloaded;
-    loadFiles();
+    if (data.downloaded !== lastDownloaded) {
+      lastDownloaded = data.downloaded;
+      loadFiles();
+    }
+  } catch (err) {
+    statusText.textContent = 'Status check failed: ' + err.message;
   }
 }
 

@@ -1,0 +1,17 @@
+Content-Length: 1012783
+Date: Mon, 13 Jul 2026 11:13:15 GMT
+Content-Type: image/png
+X-Amz-Id-2: 8ciBwSQbmT/urPc9gDbIXp1f2hTQB4sTb7qWqBz7Jste+DbAL1aisk3pHx8pRUv4v6xDsDTAXMC8dOah5/+hUUKaJxeg1JzG
+X-Amz-Request-Id: QX7VEFBP7CVYHRET
+Last-Modified: Tue, 03 Feb 2026 09:11:29 GMT
+Etag: "a160d56cbec57db477636ed46c8dce2b"
+X-Amz-Storage-Class: INTELLIGENT_TIERING
+X-Amz-Server-Side-Encryption: AES256
+Cache-Control: max-age=31536000, must-revalidate
+X-Amz-Version-Id: CF1gLTsTHD6gw6IIkwdDVOghduT1B4H7
+Accept-Ranges: bytes
+Server: cloudflare
+Access-Control-Allow-Origin: *
+Cf-Cache-Status: HIT
+Cf-Ray: a1a7db79c87311aa-MRS
+Alt-Svc: h3=":443"; ma=86400

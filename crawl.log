@@ -1,5 +1,5 @@
-2026-07-13 13:59:12 [scrapy.utils.log] INFO: Scrapy 2.17.0 started (bot: image_crawler)
-2026-07-13 13:59:12 [scrapy.utils.log] INFO: Versions:
+2026-07-13 14:13:12 [scrapy.utils.log] INFO: Scrapy 2.17.0 started (bot: image_crawler)
+2026-07-13 14:13:12 [scrapy.utils.log] INFO: Versions:
 {'lxml': '6.1.1',
  'libxml2': '2.11.9',
  'cssselect': '1.4.0',
@@ -11,16 +11,16 @@
  'pyOpenSSL': '26.3.0 (OpenSSL 4.0.1 9 Jun 2026)',
  'cryptography': '49.0.0',
  'Platform': 'Windows-11-10.0.26200-SP0'}
-2026-07-13 13:59:12 [scrapy.addons] INFO: Enabled addons:
+2026-07-13 14:13:12 [scrapy.addons] INFO: Enabled addons:
 []
-2026-07-13 13:59:12 [scrapy.extensions.telnet] INFO: Telnet Password: b555702fe9c5f6db
-2026-07-13 13:59:12 [scrapy.middleware] INFO: Enabled extensions:
+2026-07-13 14:13:12 [scrapy.extensions.telnet] INFO: Telnet Password: b043fb2a78104f1e
+2026-07-13 14:13:12 [scrapy.middleware] INFO: Enabled extensions:
 ['scrapy.extensions.corestats.CoreStats',
  'scrapy.extensions.logcount.LogCount',
  'scrapy.extensions.telnet.TelnetConsole',
  'scrapy.extensions.logstats.LogStats',
  'scrapy.extensions.throttle.AutoThrottle']
-2026-07-13 13:59:12 [scrapy.crawler] INFO: Overridden settings:
+2026-07-13 14:13:12 [scrapy.crawler] INFO: Overridden settings:
 {'AUTOTHROTTLE_ENABLED': True,
  'AUTOTHROTTLE_MAX_DELAY': 10,
  'AUTOTHROTTLE_START_DELAY': 0.1,
@@ -41,7 +41,7 @@
  'RETRY_TIMES': 3,
  'ROBOTSTXT_OBEY': True,
  'SPIDER_MODULES': ['image_crawler.spiders']}
-2026-07-13 13:59:12 [scrapy.middleware] INFO: Enabled downloader middlewares:
+2026-07-13 14:13:12 [scrapy.middleware] INFO: Enabled downloader middlewares:
 ['scrapy.downloadermiddlewares.offsite.OffsiteMiddleware',
  'scrapy.downloadermiddlewares.robotstxt.RobotsTxtMiddleware',
  'scrapy.downloadermiddlewares.httpauth.HttpAuthMiddleware',
@@ -56,242 +56,87 @@
  'scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware',
  'scrapy.downloadermiddlewares.stats.DownloaderStats',
  'scrapy.downloadermiddlewares.httpcache.HttpCacheMiddleware']
-2026-07-13 13:59:12 [py.warnings] WARNING: D:\projects\web-scaping\image_crawler\.venv\Lib\site-packages\scrapy\core\downloader\middleware.py:46: ScrapyDeprecationWarning: RotateUserAgentMiddleware.process_request() requires a spider argument, this is deprecated and the argument will not be passed in future Scrapy versions. If you need to access the spider instance you can save the crawler instance passed to from_crawler() and use its spider attribute.
+2026-07-13 14:13:12 [py.warnings] WARNING: D:\projects\web-scaping\image_crawler\.venv\Lib\site-packages\scrapy\core\downloader\middleware.py:46: ScrapyDeprecationWarning: RotateUserAgentMiddleware.process_request() requires a spider argument, this is deprecated and the argument will not be passed in future Scrapy versions. If you need to access the spider instance you can save the crawler instance passed to from_crawler() and use its spider attribute.
   self._check_mw_method_spider_arg(mw.process_request)
 
-2026-07-13 13:59:12 [scrapy.middleware] INFO: Enabled spider middlewares:
+2026-07-13 14:13:12 [scrapy.middleware] INFO: Enabled spider middlewares:
 ['scrapy.spidermiddlewares.start.StartSpiderMiddleware',
  'scrapy.spidermiddlewares.httperror.HttpErrorMiddleware',
  'scrapy.spidermiddlewares.referer.RefererMiddleware',
  'scrapy.spidermiddlewares.urllength.UrlLengthMiddleware',
  'scrapy.spidermiddlewares.depth.DepthMiddleware']
-2026-07-13 13:59:12 [scrapy.middleware] INFO: Enabled item pipelines:
+2026-07-13 14:13:12 [scrapy.middleware] INFO: Enabled item pipelines:
 ['image_crawler.pipelines.DedupImagesPipeline',
  'image_crawler.pipelines.EmbeddedVideoPipeline',
  'image_crawler.pipelines.MetadataExportPipeline']
-2026-07-13 13:59:12 [py.warnings] WARNING: D:\projects\web-scaping\image_crawler\.venv\Lib\site-packages\scrapy\pipelines\__init__.py:43: ScrapyDeprecationWarning: DedupImagesPipeline.open_spider() requires a spider argument, this is deprecated and the argument will not be passed in future Scrapy versions. If you need to access the spider instance you can save the crawler instance passed to from_crawler() and use its spider attribute.
+2026-07-13 14:13:12 [py.warnings] WARNING: D:\projects\web-scaping\image_crawler\.venv\Lib\site-packages\scrapy\pipelines\__init__.py:43: ScrapyDeprecationWarning: DedupImagesPipeline.open_spider() requires a spider argument, this is deprecated and the argument will not be passed in future Scrapy versions. If you need to access the spider instance you can save the crawler instance passed to from_crawler() and use its spider attribute.
   self._check_mw_method_spider_arg(mw.open_spider)
 
-2026-07-13 13:59:12 [py.warnings] WARNING: D:\projects\web-scaping\image_crawler\.venv\Lib\site-packages\scrapy\pipelines\__init__.py:46: ScrapyDeprecationWarning: DedupImagesPipeline.close_spider() requires a spider argument, this is deprecated and the argument will not be passed in future Scrapy versions. If you need to access the spider instance you can save the crawler instance passed to from_crawler() and use its spider attribute.
+2026-07-13 14:13:12 [py.warnings] WARNING: D:\projects\web-scaping\image_crawler\.venv\Lib\site-packages\scrapy\pipelines\__init__.py:46: ScrapyDeprecationWarning: DedupImagesPipeline.close_spider() requires a spider argument, this is deprecated and the argument will not be passed in future Scrapy versions. If you need to access the spider instance you can save the crawler instance passed to from_crawler() and use its spider attribute.
   self._check_mw_method_spider_arg(mw.close_spider)
 
-2026-07-13 13:59:12 [py.warnings] WARNING: D:\projects\web-scaping\image_crawler\.venv\Lib\site-packages\scrapy\pipelines\__init__.py:43: ScrapyDeprecationWarning: EmbeddedVideoPipeline.open_spider() requires a spider argument, this is deprecated and the argument will not be passed in future Scrapy versions. If you need to access the spider instance you can save the crawler instance passed to from_crawler() and use its spider attribute.
+2026-07-13 14:13:12 [py.warnings] WARNING: D:\projects\web-scaping\image_crawler\.venv\Lib\site-packages\scrapy\pipelines\__init__.py:43: ScrapyDeprecationWarning: EmbeddedVideoPipeline.open_spider() requires a spider argument, this is deprecated and the argument will not be passed in future Scrapy versions. If you need to access the spider instance you can save the crawler instance passed to from_crawler() and use its spider attribute.
   self._check_mw_method_spider_arg(mw.open_spider)
 
-2026-07-13 13:59:12 [py.warnings] WARNING: D:\projects\web-scaping\image_crawler\.venv\Lib\site-packages\scrapy\pipelines\__init__.py:46: ScrapyDeprecationWarning: EmbeddedVideoPipeline.close_spider() requires a spider argument, this is deprecated and the argument will not be passed in future Scrapy versions. If you need to access the spider instance you can save the crawler instance passed to from_crawler() and use its spider attribute.
+2026-07-13 14:13:12 [py.warnings] WARNING: D:\projects\web-scaping\image_crawler\.venv\Lib\site-packages\scrapy\pipelines\__init__.py:46: ScrapyDeprecationWarning: EmbeddedVideoPipeline.close_spider() requires a spider argument, this is deprecated and the argument will not be passed in future Scrapy versions. If you need to access the spider instance you can save the crawler instance passed to from_crawler() and use its spider attribute.
   self._check_mw_method_spider_arg(mw.close_spider)
 
-2026-07-13 13:59:12 [py.warnings] WARNING: D:\projects\web-scaping\image_crawler\.venv\Lib\site-packages\scrapy\pipelines\__init__.py:49: ScrapyDeprecationWarning: EmbeddedVideoPipeline.process_item() requires a spider argument, this is deprecated and the argument will not be passed in future Scrapy versions. If you need to access the spider instance you can save the crawler instance passed to from_crawler() and use its spider attribute.
+2026-07-13 14:13:12 [py.warnings] WARNING: D:\projects\web-scaping\image_crawler\.venv\Lib\site-packages\scrapy\pipelines\__init__.py:49: ScrapyDeprecationWarning: EmbeddedVideoPipeline.process_item() requires a spider argument, this is deprecated and the argument will not be passed in future Scrapy versions. If you need to access the spider instance you can save the crawler instance passed to from_crawler() and use its spider attribute.
   self._check_mw_method_spider_arg(mw.process_item)
 
-2026-07-13 13:59:12 [py.warnings] WARNING: D:\projects\web-scaping\image_crawler\.venv\Lib\site-packages\scrapy\pipelines\__init__.py:43: ScrapyDeprecationWarning: MetadataExportPipeline.open_spider() requires a spider argument, this is deprecated and the argument will not be passed in future Scrapy versions. If you need to access the spider instance you can save the crawler instance passed to from_crawler() and use its spider attribute.
+2026-07-13 14:13:12 [py.warnings] WARNING: D:\projects\web-scaping\image_crawler\.venv\Lib\site-packages\scrapy\pipelines\__init__.py:43: ScrapyDeprecationWarning: MetadataExportPipeline.open_spider() requires a spider argument, this is deprecated and the argument will not be passed in future Scrapy versions. If you need to access the spider instance you can save the crawler instance passed to from_crawler() and use its spider attribute.
   self._check_mw_method_spider_arg(mw.open_spider)
 
-2026-07-13 13:59:12 [py.warnings] WARNING: D:\projects\web-scaping\image_crawler\.venv\Lib\site-packages\scrapy\pipelines\__init__.py:46: ScrapyDeprecationWarning: MetadataExportPipeline.close_spider() requires a spider argument, this is deprecated and the argument will not be passed in future Scrapy versions. If you need to access the spider instance you can save the crawler instance passed to from_crawler() and use its spider attribute.
+2026-07-13 14:13:12 [py.warnings] WARNING: D:\projects\web-scaping\image_crawler\.venv\Lib\site-packages\scrapy\pipelines\__init__.py:46: ScrapyDeprecationWarning: MetadataExportPipeline.close_spider() requires a spider argument, this is deprecated and the argument will not be passed in future Scrapy versions. If you need to access the spider instance you can save the crawler instance passed to from_crawler() and use its spider attribute.
   self._check_mw_method_spider_arg(mw.close_spider)
 
-2026-07-13 13:59:12 [py.warnings] WARNING: D:\projects\web-scaping\image_crawler\.venv\Lib\site-packages\scrapy\pipelines\__init__.py:49: ScrapyDeprecationWarning: MetadataExportPipeline.process_item() requires a spider argument, this is deprecated and the argument will not be passed in future Scrapy versions. If you need to access the spider instance you can save the crawler instance passed to from_crawler() and use its spider attribute.
+2026-07-13 14:13:12 [py.warnings] WARNING: D:\projects\web-scaping\image_crawler\.venv\Lib\site-packages\scrapy\pipelines\__init__.py:49: ScrapyDeprecationWarning: MetadataExportPipeline.process_item() requires a spider argument, this is deprecated and the argument will not be passed in future Scrapy versions. If you need to access the spider instance you can save the crawler instance passed to from_crawler() and use its spider attribute.
   self._check_mw_method_spider_arg(mw.process_item)
 
-2026-07-13 13:59:12 [scrapy.core.engine] INFO: Spider opened
-2026-07-13 13:59:12 [py.warnings] WARNING: D:\projects\web-scaping\image_crawler\image_crawler\pipelines.py:33: ScrapyDeprecationWarning: Passing a 'spider' argument to MediaPipeline.open_spider() is deprecated and the argument will be removed in a future Scrapy version.
+2026-07-13 14:13:12 [scrapy.core.engine] INFO: Spider opened
+2026-07-13 14:13:12 [py.warnings] WARNING: D:\projects\web-scaping\image_crawler\image_crawler\pipelines.py:33: ScrapyDeprecationWarning: Passing a 'spider' argument to MediaPipeline.open_spider() is deprecated and the argument will be removed in a future Scrapy version.
   super().open_spider(spider)
 
-2026-07-13 13:59:12 [scrapy.extensions.logstats] INFO: Crawled 0 pages (at 0 pages/min), scraped 0 items (at 0 items/min)
-2026-07-13 13:59:12 [scrapy.extensions.telnet] INFO: Telnet console listening on 127.0.0.1:6023
-2026-07-13 13:59:14 [scrapy.downloadermiddlewares.retry] ERROR: Gave up retrying <GET https://www.xahani.com/robots.txt> (failed 4 times): [<twisted.python.failure.Failure twisted.internet.error.ConnectionLost: Connection to the other side was lost in a non-clean fashion: Connection lost.>]
-2026-07-13 13:59:14 [scrapy.downloadermiddlewares.robotstxt] ERROR: Error downloading <GET https://www.xahani.com/>: [<twisted.python.failure.Failure twisted.internet.error.ConnectionLost: Connection to the other side was lost in a non-clean fashion: Connection lost.>]
-Traceback (most recent call last):
-  File "D:\projects\web-scaping\image_crawler\.venv\Lib\site-packages\scrapy\utils\_download_handlers.py", line 55, in wrap_twisted_exceptions
-    yield
-  File "D:\projects\web-scaping\image_crawler\.venv\Lib\site-packages\scrapy\core\downloader\handlers\http11.py", line 130, in download_request
-    return await maybe_deferred_to_future(agent.download_request(request))
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-twisted.web._newclient.ResponseNeverReceived: [<twisted.python.failure.Failure twisted.internet.error.ConnectionLost: Connection to the other side was lost in a non-clean fashion: Connection lost.>]
-
-The above exception was the direct cause of the following exception:
-
-Traceback (most recent call last):
-  File "D:\projects\web-scaping\image_crawler\.venv\Lib\site-packages\scrapy\downloadermiddlewares\robotstxt.py", line 100, in robot_parser
-    resp = await self.crawler.engine.download_async(robotsreq)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "D:\projects\web-scaping\image_crawler\.venv\Lib\site-packages\scrapy\core\engine.py", line 481, in download_async
-    return await self.download_async(response_or_request)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "D:\projects\web-scaping\image_crawler\.venv\Lib\site-packages\scrapy\core\engine.py", line 481, in download_async
-    return await self.download_async(response_or_request)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "D:\projects\web-scaping\image_crawler\.venv\Lib\site-packages\scrapy\core\engine.py", line 481, in download_async
-    return await self.download_async(response_or_request)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "D:\projects\web-scaping\image_crawler\.venv\Lib\site-packages\scrapy\core\engine.py", line 474, in download_async
-    response_or_request = await maybe_deferred_to_future(
-                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-        self._download(request)
-        ^^^^^^^^^^^^^^^^^^^^^^^
-    )
-    ^
-  File "D:\projects\web-scaping\image_crawler\.venv\Lib\site-packages\twisted\internet\defer.py", line 1834, in _inlineCallbacks
-    result = context.run(
-        cast(Failure, result).throwExceptionIntoGenerator, gen
-    )
-  File "D:\projects\web-scaping\image_crawler\.venv\Lib\site-packages\twisted\python\failure.py", line 467, in throwExceptionIntoGenerator
-    return g.throw(self.value.with_traceback(self.tb))
-           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "D:\projects\web-scaping\image_crawler\.venv\Lib\site-packages\scrapy\core\engine.py", line 497, in _download
-    result = yield self.downloader.fetch(request)
-             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "D:\projects\web-scaping\image_crawler\.venv\Lib\site-packages\twisted\internet\defer.py", line 1834, in _inlineCallbacks
-    result = context.run(
-        cast(Failure, result).throwExceptionIntoGenerator, gen
-    )
-  File "D:\projects\web-scaping\image_crawler\.venv\Lib\site-packages\twisted\python\failure.py", line 467, in throwExceptionIntoGenerator
-    return g.throw(self.value.with_traceback(self.tb))
-           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "D:\projects\web-scaping\image_crawler\.venv\Lib\site-packages\scrapy\core\downloader\__init__.py", line 131, in fetch
-    result: Response | Request = yield (
-                                 ^^^^^^^
-    ...<3 lines>...
-    )
-    ^
-  File "D:\projects\web-scaping\image_crawler\.venv\Lib\site-packages\twisted\internet\defer.py", line 1247, in adapt
-    extracted: _SelfResultT | Failure = result.result()
-                                        ~~~~~~~~~~~~~^^
-  File "D:\projects\web-scaping\image_crawler\.venv\Lib\site-packages\scrapy\core\downloader\middleware.py", line 87, in download_async
-    result = await self._process_exception(ex, request)
-             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "D:\projects\web-scaping\image_crawler\.venv\Lib\site-packages\scrapy\core\downloader\middleware.py", line 156, in _process_exception
-    raise exception
-  File "D:\projects\web-scaping\image_crawler\.venv\Lib\site-packages\scrapy\core\downloader\middleware.py", line 80, in download_async
-    result: Response | Request = await self._process_request(
-                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-        request, download_func
-        ^^^^^^^^^^^^^^^^^^^^^^
-    )
-    ^
-  File "D:\projects\web-scaping\image_crawler\.venv\Lib\site-packages\scrapy\core\downloader\middleware.py", line 114, in _process_request
-    return await download_func(request)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "D:\projects\web-scaping\image_crawler\.venv\Lib\site-packages\scrapy\core\downloader\__init__.py", line 191, in _enqueue_request
-    return await maybe_deferred_to_future(d)  # fired in _wait_for_download()
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "D:\projects\web-scaping\image_crawler\.venv\Lib\site-packages\scrapy\core\downloader\__init__.py", line 258, in _wait_for_download
-    response = await self._download(slot, request)
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "D:\projects\web-scaping\image_crawler\.venv\Lib\site-packages\scrapy\core\downloader\__init__.py", line 228, in _download
-    response: Response = await self.handlers.download_request_async(request)
-                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "D:\projects\web-scaping\image_crawler\.venv\Lib\site-packages\scrapy\core\downloader\handlers\__init__.py", line 156, in download_request_async
-    return await handler.download_request(request)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "D:\projects\web-scaping\image_crawler\.venv\Lib\site-packages\scrapy\core\downloader\handlers\http11.py", line 129, in download_request
-    with wrap_twisted_exceptions():
-         ~~~~~~~~~~~~~~~~~~~~~~~^^
-  File "C:\Python313\Lib\contextlib.py", line 162, in __exit__
-    self.gen.throw(value)
-    ~~~~~~~~~~~~~~^^^^^^^
-  File "D:\projects\web-scaping\image_crawler\.venv\Lib\site-packages\scrapy\utils\_download_handlers.py", line 65, in wrap_twisted_exceptions
-    raise DownloadFailedError(str(e)) from e
-scrapy.exceptions.DownloadFailedError: [<twisted.python.failure.Failure twisted.internet.error.ConnectionLost: Connection to the other side was lost in a non-clean fashion: Connection lost.>]
-2026-07-13 13:59:15 [scrapy.downloadermiddlewares.retry] ERROR: Gave up retrying <GET https://www.xahani.com/> (failed 4 times): [<twisted.python.failure.Failure twisted.internet.error.ConnectionLost: Connection to the other side was lost in a non-clean fashion: Connection lost.>]
-2026-07-13 13:59:15 [scrapy.core.scraper] ERROR: Error downloading <GET https://www.xahani.com/>
-Traceback (most recent call last):
-  File "D:\projects\web-scaping\image_crawler\.venv\Lib\site-packages\scrapy\utils\_download_handlers.py", line 55, in wrap_twisted_exceptions
-    yield
-  File "D:\projects\web-scaping\image_crawler\.venv\Lib\site-packages\scrapy\core\downloader\handlers\http11.py", line 130, in download_request
-    return await maybe_deferred_to_future(agent.download_request(request))
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-twisted.web._newclient.ResponseNeverReceived: [<twisted.python.failure.Failure twisted.internet.error.ConnectionLost: Connection to the other side was lost in a non-clean fashion: Connection lost.>]
-
-The above exception was the direct cause of the following exception:
-
-Traceback (most recent call last):
-  File "D:\projects\web-scaping\image_crawler\.venv\Lib\site-packages\twisted\internet\defer.py", line 1834, in _inlineCallbacks
-    result = context.run(
-        cast(Failure, result).throwExceptionIntoGenerator, gen
-    )
-  File "D:\projects\web-scaping\image_crawler\.venv\Lib\site-packages\twisted\python\failure.py", line 467, in throwExceptionIntoGenerator
-    return g.throw(self.value.with_traceback(self.tb))
-           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "D:\projects\web-scaping\image_crawler\.venv\Lib\site-packages\scrapy\core\engine.py", line 497, in _download
-    result = yield self.downloader.fetch(request)
-             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "D:\projects\web-scaping\image_crawler\.venv\Lib\site-packages\twisted\internet\defer.py", line 1834, in _inlineCallbacks
-    result = context.run(
-        cast(Failure, result).throwExceptionIntoGenerator, gen
-    )
-  File "D:\projects\web-scaping\image_crawler\.venv\Lib\site-packages\twisted\python\failure.py", line 467, in throwExceptionIntoGenerator
-    return g.throw(self.value.with_traceback(self.tb))
-           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "D:\projects\web-scaping\image_crawler\.venv\Lib\site-packages\scrapy\core\downloader\__init__.py", line 131, in fetch
-    result: Response | Request = yield (
-                                 ^^^^^^^
-    ...<3 lines>...
-    )
-    ^
-  File "D:\projects\web-scaping\image_crawler\.venv\Lib\site-packages\twisted\internet\defer.py", line 1247, in adapt
-    extracted: _SelfResultT | Failure = result.result()
-                                        ~~~~~~~~~~~~~^^
-  File "D:\projects\web-scaping\image_crawler\.venv\Lib\site-packages\scrapy\core\downloader\middleware.py", line 87, in download_async
-    result = await self._process_exception(ex, request)
-             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "D:\projects\web-scaping\image_crawler\.venv\Lib\site-packages\scrapy\core\downloader\middleware.py", line 156, in _process_exception
-    raise exception
-  File "D:\projects\web-scaping\image_crawler\.venv\Lib\site-packages\scrapy\core\downloader\middleware.py", line 80, in download_async
-    result: Response | Request = await self._process_request(
-                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-        request, download_func
-        ^^^^^^^^^^^^^^^^^^^^^^
-    )
-    ^
-  File "D:\projects\web-scaping\image_crawler\.venv\Lib\site-packages\scrapy\core\downloader\middleware.py", line 114, in _process_request
-    return await download_func(request)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "D:\projects\web-scaping\image_crawler\.venv\Lib\site-packages\scrapy\core\downloader\__init__.py", line 191, in _enqueue_request
-    return await maybe_deferred_to_future(d)  # fired in _wait_for_download()
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "D:\projects\web-scaping\image_crawler\.venv\Lib\site-packages\scrapy\core\downloader\__init__.py", line 258, in _wait_for_download
-    response = await self._download(slot, request)
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "D:\projects\web-scaping\image_crawler\.venv\Lib\site-packages\scrapy\core\downloader\__init__.py", line 228, in _download
-    response: Response = await self.handlers.download_request_async(request)
-                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "D:\projects\web-scaping\image_crawler\.venv\Lib\site-packages\scrapy\core\downloader\handlers\__init__.py", line 156, in download_request_async
-    return await handler.download_request(request)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "D:\projects\web-scaping\image_crawler\.venv\Lib\site-packages\scrapy\core\downloader\handlers\http11.py", line 129, in download_request
-    with wrap_twisted_exceptions():
-         ~~~~~~~~~~~~~~~~~~~~~~~^^
-  File "C:\Python313\Lib\contextlib.py", line 162, in __exit__
-    self.gen.throw(value)
-    ~~~~~~~~~~~~~~^^^^^^^
-  File "D:\projects\web-scaping\image_crawler\.venv\Lib\site-packages\scrapy\utils\_download_handlers.py", line 65, in wrap_twisted_exceptions
-    raise DownloadFailedError(str(e)) from e
-scrapy.exceptions.DownloadFailedError: [<twisted.python.failure.Failure twisted.internet.error.ConnectionLost: Connection to the other side was lost in a non-clean fashion: Connection lost.>]
-2026-07-13 13:59:15 [scrapy.core.engine] INFO: Closing spider (finished)
-2026-07-13 13:59:15 [imagespider] INFO: Exported 0 media records to metadata.csv and metadata.json
-2026-07-13 13:59:15 [scrapy.statscollectors] INFO: Dumping Scrapy stats:
-{'downloader/exception_count': 8,
- 'downloader/exception_type_count/scrapy.exceptions.DownloadFailedError': 8,
- 'downloader/request_bytes': 2344,
- 'downloader/request_count': 8,
- 'downloader/request_method_count/GET': 8,
- 'elapsed_time_seconds': 3.0262191999936476,
+2026-07-13 14:13:12 [scrapy.extensions.logstats] INFO: Crawled 0 pages (at 0 pages/min), scraped 0 items (at 0 items/min)
+2026-07-13 14:13:12 [scrapy.extensions.telnet] INFO: Telnet console listening on 127.0.0.1:6023
+2026-07-13 14:13:16 [scrapy.core.engine] INFO: Closing spider (finished)
+2026-07-13 14:13:16 [imagespider] INFO: Exported 18 media records to metadata.csv and metadata.json
+2026-07-13 14:13:16 [scrapy.statscollectors] INFO: Dumping Scrapy stats:
+{'downloader/exception_count': 1,
+ 'downloader/exception_type_count/scrapy.exceptions.IgnoreRequest': 1,
+ 'downloader/request_bytes': 11768,
+ 'downloader/request_count': 28,
+ 'downloader/request_method_count/GET': 28,
+ 'downloader/response_bytes': 10651127,
+ 'downloader/response_count': 28,
+ 'downloader/response_status_count/200': 28,
+ 'dupefilter/filtered': 34,
+ 'elapsed_time_seconds': 3.7038102000951767,
+ 'file_count': 18,
+ 'file_status_count/downloaded': 18,
  'finish_reason': 'finished',
- 'finish_time': datetime.datetime(2026, 7, 13, 10, 59, 15, 727765, tzinfo=datetime.timezone.utc),
- 'httpcache/miss': 8,
- 'items_per_minute': 0.0,
- 'log_count/ERROR': 4,
+ 'finish_time': datetime.datetime(2026, 7, 13, 11, 13, 16, 658833, tzinfo=datetime.timezone.utc),
+ 'httpcache/firsthand': 27,
+ 'httpcache/hit': 1,
+ 'httpcache/miss': 27,
+ 'httpcache/store': 27,
+ 'httpcompression/response_bytes': 392227,
+ 'httpcompression/response_count': 10,
+ 'images/downloaded': 20,
+ 'item_scraped_count': 20,
+ 'items_per_minute': 400.0,
  'log_count/INFO': 4,
- 'responses_per_minute': 0.0,
- 'retry/count': 6,
- 'retry/max_reached': 2,
- 'retry/reason_count/scrapy.exceptions.DownloadFailedError': 6,
- "robotstxt/exception_count/<class 'scrapy.exceptions.DownloadFailedError'>": 1,
- 'robotstxt/request_count': 1,
- 'scheduler/dequeued': 4,
- 'scheduler/dequeued/memory': 4,
- 'scheduler/enqueued': 4,
- 'scheduler/enqueued/memory': 4,
- 'start_time': datetime.datetime(2026, 7, 13, 10, 59, 12, 701529, tzinfo=datetime.timezone.utc)}
-2026-07-13 13:59:15 [scrapy.core.engine] INFO: Spider closed (finished)
+ 'offsite/domains': 1,
+ 'offsite/filtered': 1,
+ 'request_depth_max': 2,
+ 'response_received_count': 28,
+ 'responses_per_minute': 560.0,
+ 'robotstxt/request_count': 2,
+ 'robotstxt/response_count': 1,
+ 'robotstxt/response_status_count/200': 1,
+ 'scheduler/dequeued': 9,
+ 'scheduler/dequeued/memory': 9,
+ 'scheduler/enqueued': 9,
+ 'scheduler/enqueued/memory': 9,
+ 'start_time': datetime.datetime(2026, 7, 13, 11, 13, 12, 955005, tzinfo=datetime.timezone.utc)}
+2026-07-13 14:13:16 [scrapy.core.engine] INFO: Spider closed (finished)

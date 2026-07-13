@@ -31,6 +31,10 @@ def parse_args() -> argparse.Namespace:
         "--include-videos", action="store_true",
         help="Also collect direct video files and record iframe embeds (off by default)",
     )
+    parser.add_argument(
+        "--keywords",
+        help='Comma-separated words to filter by, e.g. "rice,basmati" (overrides settings.py KEYWORDS for this run; blank = download everything)',
+    )
     return parser.parse_args()
 
 
@@ -62,6 +66,8 @@ def main() -> None:
         "EMBEDDED_VIDEO_DOMAINS",
         ["youtube.com", "youtu.be", "vimeo.com", "player.vimeo.com"] if args.include_videos else [],
     )
+    if args.keywords is not None:
+        settings.set("KEYWORDS", [k.strip() for k in args.keywords.split(",") if k.strip()])
 
     process = CrawlerProcess(settings)
     process.crawl(ImageSpider, start=args.start, allowed_domain=domain)

@@ -92,6 +92,7 @@ scrapy crawl imagespider
 --obey-robots / --ignore-robots        override ROBOTSTXT_OBEY for this run
 --proxy URL                  route requests through this proxy, e.g. http://user:pass@host:port
 --include-videos                also collect direct video files + record iframe embeds (off by default)
+--keywords "a,b,c"             comma-separated filter for this run (overrides settings.py KEYWORDS; blank = everything)
 ```
 
 Example, deeper crawl into a specific site with robots.txt already confirmed
@@ -103,16 +104,21 @@ python run_spider.py --start https://example.com/gallery --depth 8 --max-images 
 
 ### Keyword filtering
 
-Edit `KEYWORDS` in `settings.py` (hardcoded on purpose, not a CLI flag):
+Set a default in `settings.py`:
 
 ```python
 KEYWORDS = ["indian", "basmati", "rice"]   # any one match downloads the file
 ```
 
+...or override it for a single run with `--keywords "rice,basmati"` (CLI) or
+the keyword box in the web dashboard — both take priority over `settings.py`
+for that run only, without editing the file.
+
 Matched case-insensitively against alt text, title, page title, and the
-media's own URL. Leave it `KEYWORDS = []` to disable filtering and download
-everything. If a crawl comes back with zero results, this is the first thing
-to check — it silently filters out anything that doesn't match.
+media's own URL. Leave it empty (`KEYWORDS = []`, or the CLI/UI field blank)
+to disable filtering and download everything. If a crawl comes back with
+zero results, this is the first thing to check — it silently filters out
+anything that doesn't match.
 
 ### Output
 
@@ -146,16 +152,22 @@ python webapp.py
 
 Then open **http://127.0.0.1:5000**. It lets you:
 
-- Enter a URL, toggle "include videos", optionally cap max images, and start/stop a crawl
-- Watch a live-tailing log panel while it runs
-- Browse a live-updating grid of downloaded files with real thumbnails/video previews
-- Filter the grid by filename, alt text, page title, or tag
+- Enter a URL, an optional comma-separated keyword filter, toggle "include
+  videos", optionally cap max images, and start/stop a crawl
+- Watch a live-tailing log panel at the bottom while it runs — drag the
+  handle above it to resize, like a normal split pane
+- Browse a live-updating list of downloaded files with real thumbnails/video
+  previews, in either a grid or a compact list view (toggle in the top-right
+  of the file panel, like a file manager; your choice is remembered)
+- Filter the list by filename, alt text, page title, or tag
 - Add free-form tags to any file, saved to `tags.json`
 
 It works by shelling out to `run_spider.py` as a subprocess and polling
 `crawl.log` / `crawl_state.db` — no new crawl logic, just a UI on top of the
 same CLI. Runs on `127.0.0.1` only; there's no auth because it's not meant to
-be exposed beyond your own machine.
+be exposed beyond your own machine. The index page is served with
+`Cache-Control: no-store` since it changes often during development — a
+normal refresh always gets the current version.
 
 **Not exposed in the UI on purpose:** `--proxy`. Set it from the command line
 if you need it — see the CLI flags above.
