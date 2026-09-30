@@ -91,7 +91,7 @@ scrapy crawl imagespider
 --output DIR                  where images are saved (default: downloads/)
 --obey-robots / --ignore-robots        override ROBOTSTXT_OBEY for this run
 --proxy URL                  route requests through this proxy, e.g. http://user:pass@host:port
---include-videos                also collect direct video files + record iframe embeds (off by default)
+--include-videos / --no-videos  collect direct video files + record iframe embeds (on by default)
 --keywords "a,b,c"             comma-separated filter for this run (overrides settings.py KEYWORDS; blank = everything)
 ```
 
@@ -122,10 +122,12 @@ anything that doesn't match.
 
 ### Output
 
-- `downloads/<category>/<subcategory>/<filename>` — images and (if
-  `--include-videos` was used) videos, in folders derived from the first two
-  path segments of the page they were found on
-  (`downloads/uncategorized/...` if the page has no such segments)
+- `downloads/<filename>` — images and videos (unless `--no-videos`), in one
+  flat folder; a short hash is appended only when two different URLs share a name.
+  Videos are found in `<video>`/`<source>` tags (even extensionless URLs),
+  Webflow `data-video-urls` backgrounds, `og:video` meta, `<a href="x.mp4">` links,
+  and JSON-LD `contentUrl`s. Descriptions come from alt/aria-label/title, link text,
+  and JSON-LD name/description. `DOWNLOAD_MAXSIZE` in settings.py caps file size
 - `metadata.csv` / `metadata.json` — page URL, media URL, media type
   (image/video), local path, alt text, title, page title, crawl timestamp,
   HTTP status, file size, width, height, MIME type

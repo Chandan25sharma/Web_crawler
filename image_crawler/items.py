@@ -15,6 +15,7 @@ class ImageItem(scrapy.Item):
     images = scrapy.Field()
     alt_text = scrapy.Field()
     title = scrapy.Field()
+    typed_video = scrapy.Field()  # found via <video>/<source type="video/...">, even if URL has no extension
 
 
 class EmbeddedVideoItem(scrapy.Item):

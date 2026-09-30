@@ -28,9 +28,10 @@ def parse_args() -> argparse.Namespace:
         "--proxy", help="Route requests through this proxy, e.g. http://user:pass@host:port"
     )
     parser.add_argument(
-        "--include-videos", action="store_true",
-        help="Also collect direct video files and record iframe embeds (off by default)",
+        "--include-videos", dest="videos", action="store_true", default=None,
+        help="Collect direct video files and record iframe embeds (default: settings.py, on)",
     )
+    parser.add_argument("--no-videos", dest="videos", action="store_false", help="Images only")
     parser.add_argument(
         "--keywords",
         help='Comma-separated words to filter by, e.g. "rice,basmati" (overrides settings.py KEYWORDS for this run; blank = download everything)',
@@ -56,16 +57,13 @@ def main() -> None:
         # standard env vars -- no custom proxy middleware needed.
         os.environ["http_proxy"] = args.proxy
         os.environ["https_proxy"] = args.proxy
-    # Explicit either way so the flag is authoritative regardless of what's
-    # currently sitting in settings.py.
-    settings.set(
-        "ALLOWED_VIDEO_EXTENSIONS",
-        ["mp4", "webm", "mov", "m4v", "ogv"] if args.include_videos else [],
-    )
-    settings.set(
-        "EMBEDDED_VIDEO_DOMAINS",
-        ["youtube.com", "youtu.be", "vimeo.com", "player.vimeo.com"] if args.include_videos else [],
-    )
+    # No flag = whatever settings.py says (videos on by default).
+    if args.videos is True:
+        settings.set("ALLOWED_VIDEO_EXTENSIONS", ["mp4", "webm", "mov", "m4v", "ogv"])
+        settings.set("EMBEDDED_VIDEO_DOMAINS", ["youtube.com", "youtu.be", "vimeo.com", "player.vimeo.com"])
+    elif args.videos is False:
+        settings.set("ALLOWED_VIDEO_EXTENSIONS", [])
+        settings.set("EMBEDDED_VIDEO_DOMAINS", [])
     if args.keywords is not None:
         settings.set("KEYWORDS", [k.strip() for k in args.keywords.split(",") if k.strip()])
 

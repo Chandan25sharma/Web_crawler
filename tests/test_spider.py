@@ -57,6 +57,43 @@ class SpiderExtractionTests(unittest.TestCase):
         self.assertIn("https://example.com/img/indian-basmati-rice.jpg", urls)
         self.assertNotIn("https://example.com/img/pakistani-rice.jpg", urls)
 
+    def test_extra_video_sources(self):
+        html = b"""<html><head><title>Vids</title></head><body>
+          <div data-video-urls="/v/bg.mp4,/v/bg.webm" data-poster-url="/v/bg.jpg"></div>
+          <a href="/v/tour.mp4">Tour</a>
+          <video src="/v/tour.mp4"></video>
+          <video><source src="/stream/123" type="video/mp4"></video>
+          <a href="/about">About</a>
+        </body></html>"""
+        response = HtmlResponse(
+            url="https://example.com/", body=html, headers={"Content-Type": "text/html"}
+        )
+        items = [i for i in make_spider().parse(response) if isinstance(i, ImageItem)]
+        urls = [i["image_urls"][0] for i in items]
+        for expected in ("bg.mp4", "bg.webm", "bg.jpg", "tour.mp4", "stream/123"):
+            self.assertIn("https://example.com/" + ("" if "/" in expected else "v/") + expected, urls)
+        self.assertEqual(urls.count("https://example.com/v/tour.mp4"), 1)  # deduped
+        self.assertNotIn("https://example.com/about", urls)
+        stream = next(i for i in items if i["image_urls"][0].endswith("/stream/123"))
+        self.assertTrue(stream["typed_video"])
+
+    def test_video_descriptions_from_jsonld_and_link_text(self):
+        html = b"""<html><head><title>Files</title>
+          <script type="application/ld+json">{"@graph":[{"@type":"Dataset","name":"clip-a.mp4",
+            "description":"Clip A for QA","distribution":{"contentUrl":"https://cdn.example.com/clip-a.mp4"}}]}</script>
+          <script type="application/ld+json">{not json</script>
+        </head><body>
+          <a href="https://cdn.example.com/clip-a.mp4">Download</a>
+          <a href="/clip-b.mp4">Factory tour  video</a>
+        </body></html>"""
+        response = HtmlResponse(
+            url="https://example.com/", body=html, headers={"Content-Type": "text/html"}
+        )
+        items = {i["image_urls"][0]: i for i in make_spider().parse(response) if isinstance(i, ImageItem)}
+        a = items["https://cdn.example.com/clip-a.mp4"]
+        self.assertEqual((a["title"], a["alt_text"]), ("clip-a.mp4", "Clip A for QA"))
+        self.assertEqual(items["https://example.com/clip-b.mp4"]["title"], "Factory tour video")
+
     def test_embedded_video_recorded_not_downloaded(self):
         items = self._parse(make_spider())
         embeds = [i for i in items if isinstance(i, EmbeddedVideoItem)]

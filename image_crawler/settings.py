@@ -54,12 +54,14 @@ ALLOWED_IMAGE_EXTENSIONS = ["jpg", "jpeg", "png", "gif", "webp", "svg", "avif"]
 MEDIA_ALLOW_REDIRECTS = True
 
 # --- Videos ---
-# Disabled for now -- empty lists mean nothing matches as a video, so the spider
-# only ever collects images. Re-add extensions/domains below to turn it back on.
-ALLOWED_VIDEO_EXTENSIONS: list[str] = []
-EMBEDDED_VIDEO_DOMAINS: list[str] = []
-# ALLOWED_VIDEO_EXTENSIONS = ["mp4", "webm", "mov", "m4v", "ogv"]
-# EMBEDDED_VIDEO_DOMAINS = ["youtube.com", "youtu.be", "vimeo.com", "player.vimeo.com"]
+# On by default. Set both to [] (or pass --no-videos) to collect images only.
+ALLOWED_VIDEO_EXTENSIONS = ["mp4", "webm", "mov", "m4v", "ogv"]
+EMBEDDED_VIDEO_DOMAINS = ["youtube.com", "youtu.be", "vimeo.com", "player.vimeo.com"]
+# Video files are big: give each download up to 10 minutes (Scrapy default is 3).
+DOWNLOAD_TIMEOUT = 600
+# Skip any single file bigger than this. Scrapy's default is 1 GB; lower it
+# (e.g. 100 * 1024 * 1024) for sites that host huge sample/raw videos.
+DOWNLOAD_MAXSIZE = 1024 * 1024 * 1024
 
 # --- Crawl state / metadata output ---
 SQLITE_DB_PATH = "crawl_state.db"

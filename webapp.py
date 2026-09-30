@@ -72,8 +72,7 @@ def start_crawl():
             "--start", url,
             "--domain", domain,
         ]
-        if body.get("include_videos"):
-            cmd.append("--include-videos")
+        cmd.append("--include-videos" if body.get("include_videos", True) else "--no-videos")
         if body.get("max_images"):
             cmd += ["--max-images", str(int(body["max_images"]))]
         if body.get("keywords"):
