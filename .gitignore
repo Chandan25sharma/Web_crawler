@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Crawl output / state (regenerated on every run)
+.scrapy/
+downloads/
+runs/
+*.log
+crawl_state.db
+metadata.csv
+metadata.json
+embedded_videos.csv
+embedded_videos.json
+tags.json

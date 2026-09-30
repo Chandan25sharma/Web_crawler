@@ -1,8 +1,13 @@
 # image_crawler
 
 A Scrapy project that crawls a public website (staying within its domain) and
-downloads every image (and, optionally, video) it can find, with resumable
-state, CSV/JSON metadata export, keyword filtering, and a local web dashboard.
+downloads every image and video file it can find, with names/descriptions
+taken from the page, resumable state, CSV/JSON metadata export, keyword
+filtering, and a local web dashboard.
+
+Tested end to end on https://samplelib.com/sample-mp4.html (10 MP4s) and
+https://truefilesize.com/video/mp4/ (18 MP4/WebM/MOV files with JSON-LD
+descriptions).
 
 ## What it uses, and why
 
@@ -18,9 +23,13 @@ Almost everything here is stock Scrapy, configured rather than reimplemented:
 | robots.txt | Scrapy's built-in `ROBOTSTXT_OBEY` (toggle in settings.py or via CLI) |
 | HTTP compression / caching | Scrapy's built-in `HttpCompressionMiddleware` / `HttpCacheMiddleware` |
 | Image/video download, retry-on-fail | Scrapy's `ImagesPipeline`, subclassed as `DedupImagesPipeline` (SVG and video files bypass Pillow and are stored as raw bytes, since Pillow can't decode them) |
+| Video discovery | `<video>`/`<source>` tags (even extensionless URLs when `type="video/..."`), `<video poster>`, Webflow `data-video-urls` backgrounds, `og:video` meta, `<a href="clip.mp4">` links, and JSON-LD `contentUrl`s — see [Videos](#videos) |
+| File names / descriptions | alt / `aria-label` / `title` attributes, link text, and JSON-LD `name` / `description`; saved to `title` / `alt_text` in the metadata |
+| Big files | `DOWNLOAD_TIMEOUT = 600` s per file, `DOWNLOAD_MAXSIZE` (1 GB) skips anything larger |
 | Embedded video (YouTube/Vimeo iframes) | Recorded as a reference only — never downloaded, since there's no raw file behind an iframe embed, just a link to a third-party player |
 | Keyword filtering | Hardcoded `KEYWORDS` list in `settings.py`; matched against alt text / title / page title / URL |
 | Proxy support | Scrapy's built-in `HttpProxyMiddleware`, driven by the standard `http_proxy`/`https_proxy` env vars (`--proxy` sets them for you) |
+| Secret-scanner hygiene | `TELNETCONSOLE_ENABLED = False` (Scrapy's telnet console logs a one-time password each run) + `.gitignore` for logs, DB, cache, downloads |
 | User-Agent rotation | The one custom downloader middleware (`middlewares.RotateUserAgentMiddleware`) — Scrapy has no built-in for this |
 | Crawl state / dedup / resume | SQLite (stdlib `sqlite3`), one `images` table |
 | Metadata export | stdlib `csv` + `json`, dumped from the SQLite table on spider close |
@@ -31,6 +40,7 @@ Almost everything here is stock Scrapy, configured rather than reimplemented:
 ```
 image_crawler/
   scrapy.cfg
+  .gitignore                 # keeps logs, crawl state, cache, downloads out of git
   run_spider.py              # CLI entry point
   webapp.py                  # local web dashboard (Flask)
   web/index.html             # dashboard UI (single static page, no build step)
@@ -87,7 +97,7 @@ scrapy crawl imagespider
 --start URL                seed URL (required)
 --domain DOMAIN             allowed domain (default: derived from --start)
 --depth N                    max crawl depth (default: settings.py DEPTH_LIMIT = 5)
---max-images N              stop after N images are queued (default: unlimited)
+--max-images N              stop after N files (images + videos) are queued (default: unlimited)
 --output DIR                  where images are saved (default: downloads/)
 --obey-robots / --ignore-robots        override ROBOTSTXT_OBEY for this run
 --proxy URL                  route requests through this proxy, e.g. http://user:pass@host:port
@@ -120,17 +130,37 @@ to disable filtering and download everything. If a crawl comes back with
 zero results, this is the first thing to check — it silently filters out
 anything that doesn't match.
 
+### Videos
+
+On by default (`ALLOWED_VIDEO_EXTENSIONS` / `EMBEDDED_VIDEO_DOMAINS` in
+`settings.py`); `--no-videos` or unticking "Include videos" in the dashboard
+switches to images only. Allowed extensions: `mp4 webm mov m4v ogv`.
+
+| Where the video is on the page | Downloaded? |
+|---|---|
+| `<video src>` / `<video><source src></video>` | yes |
+| `<source src="/stream/123" type="video/mp4">` (no extension) | yes, saved as `.mp4` |
+| `<a href="clip.mp4">` download links (any host, e.g. a CDN) | yes, link text becomes the title |
+| Webflow `<div data-video-urls="a.mp4,a.webm">` backgrounds | yes |
+| `<meta property="og:video">` | yes |
+| JSON-LD `VideoObject` / `DataDownload` `contentUrl` | yes, with its `name` + `description` |
+| YouTube / Vimeo `<iframe>` | no — recorded in `embedded_videos.csv` only |
+| Loaded later by JavaScript | no — see [below](#extending-imagevideo-extraction) |
+
+Some sites host huge files (samplelib/truefilesize go up to 1 GB). Lower
+`DOWNLOAD_MAXSIZE` in `settings.py` (e.g. `100 * 1024 * 1024`) to skip them;
+oversized files are cancelled before download and logged.
+
 ### Output
 
 - `downloads/<filename>` — images and videos (unless `--no-videos`), in one
-  flat folder; a short hash is appended only when two different URLs share a name.
-  Videos are found in `<video>`/`<source>` tags (even extensionless URLs),
-  Webflow `data-video-urls` backgrounds, `og:video` meta, `<a href="x.mp4">` links,
-  and JSON-LD `contentUrl`s. Descriptions come from alt/aria-label/title, link text,
-  and JSON-LD name/description. `DOWNLOAD_MAXSIZE` in settings.py caps file size
+  flat folder, keeping the original filename; a short hash is appended only
+  when two different URLs share a name. Extensionless video URLs get their
+  extension from the response `Content-Type` (fallback `.mp4`)
 - `metadata.csv` / `metadata.json` — page URL, media URL, media type
-  (image/video), local path, alt text, title, page title, crawl timestamp,
-  HTTP status, file size, width, height, MIME type
+  (image/video), local path, alt text (description), title (name), page
+  title, crawl timestamp, HTTP status, file size, width, height (images
+  only), MIME type
 - `embedded_videos.csv` / `embedded_videos.json` — YouTube/Vimeo iframe
   embeds found on crawled pages (page URL, embed URL, platform); these are
   references only, never downloaded
@@ -138,6 +168,8 @@ anything that doesn't match.
   already recorded) and content-hash dedup (a byte-identical file found at a
   different URL reuses the existing file instead of saving a second copy)
 - `crawl.log` — page/media counts, retries, failures (also visible in stdout)
+
+All of these are generated files and are git-ignored — don't commit them.
 
 To resume an interrupted crawl, just re-run the same command — already-seen
 media URLs are skipped via `crawl_state.db`. To start clean, delete
@@ -179,17 +211,20 @@ if you need it — see the CLI flags above.
 All extraction logic lives in `ImageSpider._extract_media()` (images/direct
 videos) and `_extract_embedded_videos()` (iframes) in
 `spiders/imagespider.py`. `_extract_media` builds a set of `(url, alt,
-title)` candidates from several sources before resolving/filtering them —
-add a new source by appending to that same set, e.g. a new attribute name or
-a new meta tag:
+title, typed_video)` candidates from several sources before resolving/filtering
+them — add a new source by appending to that same set, e.g. a new attribute
+name or a new meta tag:
 
 ```python
 for value in response.css('meta[name="my-custom-image"]::attr(content)').getall():
-    candidates.add((value, "", ""))
+    candidates.add((value, "", "", False))
 ```
 
+`typed_video=True` keeps a URL even without a video file extension. When the
+same URL is found several ways, the copy with the most alt/title text wins.
+
 Everything downstream (URL resolution, extension filtering, keyword
-filtering, dedup, folder placement, metadata export) applies automatically —
+filtering, dedup, file naming, metadata export) applies automatically —
 no other file needs to change. To accept a new file extension, add it to
 `ALLOWED_IMAGE_EXTENSIONS` or `ALLOWED_VIDEO_EXTENSIONS` in `settings.py`. To
 recognize another embed platform, add its domain to `EMBEDDED_VIDEO_DOMAINS`.
@@ -214,7 +249,9 @@ python -m unittest discover tests
 `test_utils.py` covers the pure-function helpers (srcset parsing,
 background-image regex, extension filtering, filename sanitizing, category
 derivation, keyword matching). `test_spider.py` runs the spider's extraction
-methods against a synthetic HTML page (covering image/video tags, keyword
-filtering, and embedded-video detection) without needing a live crawl. The
+methods against synthetic HTML pages (image/video tags, Webflow
+`data-video-urls`, `<a href>` video links, extensionless typed `<source>`,
+JSON-LD names/descriptions, keyword filtering, embedded-video detection)
+without needing a live crawl. The
 pipeline classes depend on a live Scrapy crawl and are exercised by running
 the crawler itself rather than mocked in unit tests.

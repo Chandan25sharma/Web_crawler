@@ -81,6 +81,10 @@ DOWNLOADER_MIDDLEWARES = {
     "image_crawler.middlewares.RotateUserAgentMiddleware": 400,
 }
 
+# Scrapy's debug telnet console isn't used, and it logs a one-time password every
+# run, which secret scanners (e.g. GitGuardian) flag if a log ever gets committed.
+TELNETCONSOLE_ENABLED = False
+
 LOG_LEVEL = "INFO"
 LOG_FILE = "crawl.log"
 
