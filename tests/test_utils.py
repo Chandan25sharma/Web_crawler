@@ -11,6 +11,7 @@ from image_crawler.utils import (
     extract_srcset_urls,
     is_allowed_extension,
     matches_keywords,
+    readable_stem,
     sanitize_filename,
 )
 
@@ -51,6 +52,33 @@ class UtilsTests(unittest.TestCase):
             ("electronics", "phones"),
         )
         self.assertEqual(category_path_from_url("https://x.com/"), ("uncategorized", ""))
+
+    def test_readable_stem(self):
+        # Webflow hash IDs and "-p-1080" size suffixes are stripped
+        self.assertEqual(
+            readable_stem("https://cdn.x.com/65e068a1e48f67f758b5ae3d_AL-MAHROOS-LOGO-BLUE_-01-p-1080.png"),
+            "AL MAHROOS LOGO BLUE 01",
+        )
+        # generic link text loses to the page title when that spells the filename nicer
+        self.assertEqual(
+            readable_stem(
+                "https://se.org/d/h-c-mcneile_the-final-count.epub", title="Compatible epub",
+                page_title="The Final Count, by H. C. McNeile - Free ebook download - Standard Ebooks",
+            ),
+            "The Final Count, by H. C. McNeile",
+        )
+        # ...but not when the page title is about a list of different files
+        self.assertEqual(
+            readable_stem("https://x.com/pdf/sample-heavy.pdf", title="Download", page_title="Sample PDF files"),
+            "Sample Heavy",
+        )
+        # alt text wins; Windows-illegal characters removed
+        self.assertEqual(readable_stem("https://x.com/a.jpg", alt="Rice: 5kg bag?"), "Rice 5kg bag")
+        # long description loses to a short meaningful name
+        self.assertEqual(
+            readable_stem("https://x.com/sample-5mb.mp4", alt="Sample MP4 file " * 6, title="sample-5mb.mp4"),
+            "Sample 5mb",
+        )
 
 
 if __name__ == "__main__":
