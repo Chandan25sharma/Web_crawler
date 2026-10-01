@@ -12,7 +12,7 @@ from scrapy.pipelines.images import ImagesPipeline
 from scrapy.utils.defer import ensure_awaitable
 
 from .items import EmbeddedVideoItem
-from .utils import get_db_connection, sanitize_filename, sha1_hex
+from .utils import get_db_connection, readable_stem, sha1_hex
 
 # Formats Pillow (and thus the stock ImagesPipeline) can't decode as raster images:
 # vector/XML (svg), and video files (mp4/webm/...) which aren't images at all.
@@ -36,11 +36,17 @@ class DedupImagesPipeline(ImagesPipeline):
     def open_spider(self, spider):
         super().open_spider(spider)
         self.conn = get_db_connection(spider.settings.get("SQLITE_DB_PATH", "crawl_state.db"))
-        self._filename_owner: dict[str, str] = {}
+        self._url_name: dict[str, str] = {}
+        self._taken: set[str] = set()
         video_extensions = spider.settings.getlist(
             "ALLOWED_VIDEO_EXTENSIONS", ["mp4", "webm", "mov", "m4v", "ogv"]
         )
-        self._raw_extensions = _ALWAYS_RAW_EXTENSIONS + tuple(f".{ext}" for ext in video_extensions)
+        self._document_extensions = tuple(
+            f".{ext}" for ext in spider.settings.getlist("ALLOWED_DOCUMENT_EXTENSIONS", [])
+        )
+        self._raw_extensions = (
+            _ALWAYS_RAW_EXTENSIONS + tuple(f".{ext}" for ext in video_extensions) + self._document_extensions
+        )
 
     def close_spider(self, spider):
         self.conn.close()
@@ -64,26 +70,38 @@ class DedupImagesPipeline(ImagesPipeline):
             )
 
     def file_path(self, request, response=None, info=None, *, item=None):
-        # Flat downloads/ folder -- keeps the original descriptive filename,
-        # appending a short hash only if two different URLs would collide.
-        base = sanitize_filename(os.path.basename(request.url.split("?")[0]))
-        if "." not in base:
+        # Flat downloads/ folder with human-readable names built from the page
+        # (alt text, link text, page title...) -- see utils.readable_stem().
+        # file_path() is called several times per request, so the first answer
+        # for a URL is cached and reused.
+        if request.url in self._url_name:
+            return self._url_name[request.url]
+
+        ext = os.path.splitext(os.path.basename(request.url.split("?")[0]))[1].lower()
+        if not ext or len(ext) > 6:
             # Extensionless URL (CDN/stream links): pick the extension from the
             # response Content-Type once we have it, else from the tag that found it.
             ctype = _content_type(response) if response else ""
             ext = mimetypes.guess_extension(ctype) if ctype.startswith(("video/", "image/")) else None
             if not ext and request.meta.get("typed_video"):
                 ext = ".mp4"
-            base += ext or ".jpg"
+            ext = ext or ".jpg"
+            if not response:
+                return f"{readable_stem(request.url)}{ext}"  # provisional; not cached
 
-        # file_path() is called several times per request, so remember which URL
-        # owns each name instead of treating every repeat call as a collision.
-        owner = self._filename_owner.setdefault(base, request.url)
-        if owner != request.url:
-            name, ext = os.path.splitext(base)
-            base = f"{name}_{sha1_hex(request.url.encode())[:8]}{ext}"
-
-        return base
+        adapter = ItemAdapter(item) if item else {}
+        stem = readable_stem(
+            request.url, adapter.get("alt_text") or "", adapter.get("title") or "",
+            adapter.get("page_title") or "",
+        )
+        name, n = f"{stem}{ext}", 2
+        while name in self._taken or self.conn.execute(
+            "SELECT 1 FROM images WHERE local_path = ?", (name,)
+        ).fetchone():
+            name, n = f"{stem} ({n}){ext}", n + 1
+        self._taken.add(name)
+        self._url_name[request.url] = name
+        return name
 
     async def file_downloaded(self, response, request, info, *, item=None):
         url_path = request.url.split("?")[0].lower()
@@ -116,7 +134,12 @@ class DedupImagesPipeline(ImagesPipeline):
             with open(full_path, "rb") as fh:
                 content_hash = sha1_hex(fh.read())
             mime_type, _ = mimetypes.guess_type(full_path)
-            media_type = "video" if mime_type and mime_type.startswith("video") else "image"
+            if mime_type and mime_type.startswith("video"):
+                media_type = "video"
+            elif self._document_extensions and full_path.lower().endswith(self._document_extensions):
+                media_type = "document"
+            else:
+                media_type = "image"
             width = height = None
             if media_type == "image":
                 try:
