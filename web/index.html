@@ -106,6 +106,7 @@
     <input id="url" type="text" placeholder="https://your-site.com/" required>
     <input id="keywords" type="text" placeholder="Keywords, comma separated (blank = all), e.g. rice, basmati">
     <label class="chk"><input id="includeVideos" type="checkbox" checked> Include videos</label>
+    <label class="chk"><input id="includeDocs" type="checkbox"> Include PDFs / ebooks</label>
     <input id="maxImages" type="number" min="1" placeholder="Max (blank = unlimited)">
     <button id="startBtn" type="submit">Start crawl</button>
     <button id="stopBtn" class="stop" type="button" disabled>Stop</button>
@@ -152,7 +153,8 @@ startForm.addEventListener('submit', async (e) => {
   const keywords = document.getElementById('keywords').value.trim();
   const include_videos = document.getElementById('includeVideos').checked;
   const maxImagesVal = document.getElementById('maxImages').value;
-  const body = { url, include_videos };
+  const include_documents = document.getElementById('includeDocs').checked;
+  const body = { url, include_videos, include_documents };
   if (keywords) body.keywords = keywords;
   if (maxImagesVal) body.max_images = parseInt(maxImagesVal, 10);
 
@@ -229,6 +231,7 @@ function showFallback(el, isVideo) {
 function renderCard(rec) {
   const src = '/media/' + rec.local_path.split('/').map(encodeURIComponent).join('/');
   const isVideo = rec.media_type === 'video';
+  const isDoc = rec.media_type === 'document';
   const dims = (rec.width && rec.height) ? `${rec.width}x${rec.height}` : '';
   const tagPills = (rec.tags || []).map(t => `<span class="tag">${t}</span>`).join('');
 
@@ -249,12 +252,22 @@ function renderCard(rec) {
   `;
 
   const thumbEl = card.querySelector('.thumb');
-  const mediaEl = document.createElement(isVideo ? 'video' : 'img');
-  mediaEl.src = src;
-  mediaEl.loading = 'lazy';
-  if (isVideo) { mediaEl.controls = true; mediaEl.muted = true; } else { mediaEl.alt = ''; }
-  mediaEl.addEventListener('error', () => showFallback(mediaEl, isVideo));
-  thumbEl.appendChild(mediaEl);
+  if (isDoc) {
+    // No preview for PDFs/ebooks: a page icon that opens the file in a new tab.
+    const link = document.createElement('a');
+    link.href = src;
+    link.target = '_blank';
+    link.className = 'thumb-fallback';
+    link.textContent = '\u{1F4C4}';
+    thumbEl.appendChild(link);
+  } else {
+    const mediaEl = document.createElement(isVideo ? 'video' : 'img');
+    mediaEl.src = src;
+    mediaEl.loading = 'lazy';
+    if (isVideo) { mediaEl.controls = true; mediaEl.muted = true; } else { mediaEl.alt = ''; }
+    mediaEl.addEventListener('error', () => showFallback(mediaEl, isVideo));
+    thumbEl.appendChild(mediaEl);
+  }
 
   const tagInput = card.querySelector('.tagform input');
   const tagBtn = card.querySelector('.tagform button');
