@@ -33,6 +33,12 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--no-videos", dest="videos", action="store_false", help="Images only")
     parser.add_argument(
+        "--documents", nargs="?", const="pdf,epub,azw3,mobi",
+        help="Also download documents/ebooks; optional list, e.g. --documents pdf,epub "
+        "(bare flag = pdf,epub,azw3,mobi)",
+    )
+    parser.add_argument("--no-images", action="store_true", help="Skip images (e.g. books/videos only)")
+    parser.add_argument(
         "--keywords",
         help='Comma-separated words to filter by, e.g. "rice,basmati" (overrides settings.py KEYWORDS for this run; blank = download everything)',
     )
@@ -41,7 +47,7 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> None:
     args = parse_args()
-    domain = args.domain or urlparse(args.start).netloc
+    domain = args.domain or urlparse(args.start).hostname
 
     settings = get_project_settings()
     if args.output:
@@ -64,6 +70,13 @@ def main() -> None:
     elif args.videos is False:
         settings.set("ALLOWED_VIDEO_EXTENSIONS", [])
         settings.set("EMBEDDED_VIDEO_DOMAINS", [])
+    if args.documents:
+        settings.set(
+            "ALLOWED_DOCUMENT_EXTENSIONS",
+            [e.strip().lstrip(".") for e in args.documents.split(",") if e.strip()],
+        )
+    if args.no_images:
+        settings.set("ALLOWED_IMAGE_EXTENSIONS", [])
     if args.keywords is not None:
         settings.set("KEYWORDS", [k.strip() for k in args.keywords.split(",") if k.strip()])
 
