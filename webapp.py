@@ -99,7 +99,13 @@ def start_crawl():
 def stop_crawl():
     with _lock:
         if _proc is not None and _proc.poll() is None:
-            _proc.terminate()
+            if os.name == "nt":
+                # A venv python.exe on Windows is a launcher that starts the real
+                # interpreter as a child; terminate() would kill only the launcher
+                # and leave the crawl running. /T kills the whole process tree.
+                subprocess.run(["taskkill", "/F", "/T", "/PID", str(_proc.pid)], capture_output=True)
+            else:
+                _proc.terminate()
             return jsonify(status="stopping")
     return jsonify(status="not running")
 
