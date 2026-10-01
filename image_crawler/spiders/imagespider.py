@@ -21,7 +21,10 @@ class ImageSpider(scrapy.Spider):
         # because from_crawler() below fills in the settings.py defaults once available.
         self.start_urls = [start] if start else []
         self.allowed_domains = [allowed_domain] if allowed_domain else []
-        self.link_extractor = LinkExtractor(allow_domains=self.allowed_domains or (), unique=True)
+        # No allow_domains here: OffsiteMiddleware already drops off-domain requests
+        # using allowed_domains, and LinkExtractor's own domain check compares
+        # host:port, so it would wrongly reject every link on a site with a port.
+        self.link_extractor = LinkExtractor(unique=True)
         self.images_seen = 0
 
     @classmethod
@@ -33,13 +36,13 @@ class ImageSpider(scrapy.Spider):
             spider.start_urls = crawler.settings.getlist("START_URLS")
         if not spider.allowed_domains:
             spider.allowed_domains = crawler.settings.getlist("ALLOWED_DOMAINS")
-            spider.link_extractor = LinkExtractor(allow_domains=spider.allowed_domains, unique=True)
         spider.allowed_extensions = crawler.settings.getlist(
             "ALLOWED_IMAGE_EXTENSIONS", ["jpg", "jpeg", "png", "gif", "webp", "svg", "avif"]
         )
         spider.allowed_video_extensions = crawler.settings.getlist(
             "ALLOWED_VIDEO_EXTENSIONS", ["mp4", "webm", "mov", "m4v", "ogv"]
         )
+        spider.allowed_document_extensions = crawler.settings.getlist("ALLOWED_DOCUMENT_EXTENSIONS", [])
         spider.embedded_video_domains = crawler.settings.getlist(
             "EMBEDDED_VIDEO_DOMAINS", ["youtube.com", "youtu.be", "vimeo.com", "player.vimeo.com"]
         )
@@ -135,7 +138,8 @@ class ImageSpider(scrapy.Spider):
             is_video = bool(self.allowed_video_extensions) and (
                 typed_video or is_allowed_extension(abs_url, self.allowed_video_extensions)
             )
-            if not (is_image or is_video) or abs_url in yielded:
+            is_document = is_allowed_extension(abs_url, self.allowed_document_extensions)
+            if not (is_image or is_video or is_document) or abs_url in yielded:
                 continue
             if not matches_keywords([alt, title, page_title, abs_url], self.keywords):
                 continue
