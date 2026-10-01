@@ -57,6 +57,13 @@ MEDIA_ALLOW_REDIRECTS = True
 # On by default. Set both to [] (or pass --no-videos) to collect images only.
 ALLOWED_VIDEO_EXTENSIONS = ["mp4", "webm", "mov", "m4v", "ogv"]
 EMBEDDED_VIDEO_DOMAINS = ["youtube.com", "youtu.be", "vimeo.com", "player.vimeo.com"]
+
+# --- Documents / ebooks ---
+# Off by default so image crawls don't pull large files. Pass --documents
+# (or tick "Include PDFs / ebooks" in the dashboard) to turn it on.
+ALLOWED_DOCUMENT_EXTENSIONS: list[str] = []
+# ALLOWED_DOCUMENT_EXTENSIONS = ["pdf", "epub", "azw3", "mobi"]
+
 # Video files are big: give each download up to 10 minutes (Scrapy default is 3).
 DOWNLOAD_TIMEOUT = 600
 # Skip any single file bigger than this. Scrapy's default is 1 GB; lower it
