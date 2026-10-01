@@ -94,6 +94,26 @@ class SpiderExtractionTests(unittest.TestCase):
         self.assertEqual((a["title"], a["alt_text"]), ("clip-a.mp4", "Clip A for QA"))
         self.assertEqual(items["https://example.com/clip-b.mp4"]["title"], "Factory tour video")
 
+    def test_documents_only_when_enabled(self):
+        html = b"""<html><head><title>The Final Count</title></head><body>
+          <a property="schema:contentUrl" href="/ebooks/x/downloads/x_book.epub">Compatible epub</a>
+          <a href="/files/guide.pdf">User guide</a>
+          <a href="/files/data.zip">Data</a>
+        </body></html>"""
+        response = HtmlResponse(
+            url="https://example.com/ebooks/x", body=html, headers={"Content-Type": "text/html"}
+        )
+        spider = make_spider()
+        self.assertEqual([i for i in spider.parse(response) if isinstance(i, ImageItem)], [])
+
+        spider.allowed_document_extensions = ["pdf", "epub"]
+        items = {i["image_urls"][0]: i for i in spider.parse(response) if isinstance(i, ImageItem)}
+        self.assertEqual(
+            set(items),
+            {"https://example.com/ebooks/x/downloads/x_book.epub", "https://example.com/files/guide.pdf"},
+        )
+        self.assertEqual(items["https://example.com/files/guide.pdf"]["title"], "User guide")
+
     def test_embedded_video_recorded_not_downloaded(self):
         items = self._parse(make_spider())
         embeds = [i for i in items if isinstance(i, EmbeddedVideoItem)]
