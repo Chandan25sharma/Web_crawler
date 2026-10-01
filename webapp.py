@@ -66,13 +66,15 @@ def start_crawl():
         if _proc is not None and _proc.poll() is None:
             return jsonify(error="a crawl is already running"), 409
 
-        domain = urlparse(url).netloc
+        domain = urlparse(url).hostname or ""
         cmd = [
             sys.executable, "run_spider.py",
             "--start", url,
             "--domain", domain,
         ]
         cmd.append("--include-videos" if body.get("include_videos", True) else "--no-videos")
+        if body.get("include_documents"):
+            cmd.append("--documents")
         if body.get("max_images"):
             cmd += ["--max-images", str(int(body["max_images"]))]
         if body.get("keywords"):
