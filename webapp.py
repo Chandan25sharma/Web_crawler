@@ -72,8 +72,16 @@ def start_crawl():
             "--start", url,
             "--domain", domain,
         ]
-        cmd.append("--include-videos" if body.get("include_videos", True) else "--no-videos")
-        if body.get("include_documents"):
+        # Each file type is its own tick box: only ticked types are downloaded.
+        images = body.get("include_images", True)
+        videos = body.get("include_videos", True)
+        documents = body.get("include_documents", False)
+        if not (images or videos or documents):
+            return jsonify(error="tick at least one file type: images, videos, or PDFs / ebooks"), 400
+        if not images:
+            cmd.append("--no-images")
+        cmd.append("--include-videos" if videos else "--no-videos")
+        if documents:
             cmd.append("--documents")
         if body.get("max_images"):
             cmd += ["--max-images", str(int(body["max_images"]))]

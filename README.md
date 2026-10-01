@@ -137,7 +137,7 @@ anything that doesn't match.
 
 On by default (`ALLOWED_VIDEO_EXTENSIONS` / `EMBEDDED_VIDEO_DOMAINS` in
 `settings.py`); `--no-videos` or unticking "Include videos" in the dashboard
-switches to images only. Allowed extensions: `mp4 webm mov m4v ogv`.
+switches to images only (dashboard: untick "Videos"). Allowed extensions: `mp4 webm mov m4v ogv`.
 
 | Where the video is on the page | Downloaded? |
 |---|---|
@@ -181,10 +181,21 @@ Notes:
 
 ### Output
 
-- `downloads/<filename>` — images and videos (unless `--no-videos`), in one
-  flat folder, keeping the original filename; a short hash is appended only
-  when two different URLs share a name. Extensionless video URLs get their
-  extension from the response `Content-Type` (fallback `.mp4`)
+- `downloads/<readable name>.<ext>` — images, videos and documents in one
+  flat folder, named from the page rather than the raw URL
+  (`utils.readable_stem()`):
+  1. alt text / link text / JSON-LD name, if it says something (generic text
+     like "Download" or "Compatible epub" is ignored; a short name beats a
+     long description sentence)
+  2. else the page title, when it's a nicer spelling of the URL's filename
+     (`h-c-mcneile_the-final-count.epub` -> `The Final Count, by H. C. McNeile.epub`)
+  3. else the URL's filename, tidied: Webflow-style hex IDs and `-p-1080`
+     size suffixes removed, `-`/`_` turned into spaces
+     (`65e0..._AL-MAHROOS-LOGO-BLUE_-01-p-1080.png` -> `AL MAHROOS LOGO BLUE 01.png`)
+
+  Same name twice gets ` (2)`, ` (3)`... Characters Windows doesn't allow are
+  removed. Extensionless video URLs get their extension from the response
+  `Content-Type` (fallback `.mp4`). The original URL is always in the metadata.
 - `metadata.csv` / `metadata.json` — page URL, media URL, media type
   (image/video), local path, alt text (description), title (name), page
   title, crawl timestamp, HTTP status, file size, width, height (images
@@ -214,8 +225,12 @@ python webapp.py
 
 Then open **http://127.0.0.1:5000**. It lets you:
 
-- Enter a URL, an optional comma-separated keyword filter, toggle "include
-  videos", optionally cap max images, and start/stop a crawl
+- Enter a URL, an optional comma-separated keyword filter, tick which file
+  types to download (**Images**, **Videos**, **PDFs / ebooks** — any
+  combination; only ticked types are saved), optionally cap the number of
+  files, and start/stop a crawl
+- After pulling an update, **restart `webapp.py`** — the running server keeps
+  its old code until restarted
 - Watch a live-tailing log panel at the bottom while it runs — drag the
   handle above it to resize, like a normal split pane
 - Browse a live-updating list of downloaded files with real thumbnails/video
@@ -252,7 +267,7 @@ for value in response.css('meta[name="my-custom-image"]::attr(content)').getall(
 same URL is found several ways, the copy with the most alt/title text wins.
 
 Everything downstream (URL resolution, extension filtering, keyword
-filtering, dedup, file naming, metadata export) applies automatically —
+filtering, dedup, readable file naming, metadata export) applies automatically —
 no other file needs to change. To accept a new file extension, add it to
 `ALLOWED_IMAGE_EXTENSIONS` or `ALLOWED_VIDEO_EXTENSIONS` in `settings.py`. To
 recognize another embed platform, add its domain to `EMBEDDED_VIDEO_DOMAINS`.

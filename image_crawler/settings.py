@@ -26,27 +26,30 @@ KEYWORDS: list[str] = [""]  # type: ignore
 # --- Politeness / performance ---
 # Scrapy has no literal "worker" processes to add -- it's a single async event
 # loop that already sends many requests concurrently. These are the actual
-# speed knobs. Values here are raised for crawling your own site; lower them
-# back down (16 / 8 / 0.5 / 4.0) before pointing this at a third-party site.
-CONCURRENT_REQUESTS = 32
-CONCURRENT_REQUESTS_PER_DOMAIN = 16
-DOWNLOAD_DELAY = 0.1
+# speed knobs. Defaults are polite enough for third-party sites (fast sites
+# answer "429 Too Many Requests" otherwise). Crawling your OWN site and want
+# speed? Use 32 / 16 / 0.1 / 0.1 / 8.0 instead.
+CONCURRENT_REQUESTS = 8
+CONCURRENT_REQUESTS_PER_DOMAIN = 2
+DOWNLOAD_DELAY = 1.0
 AUTOTHROTTLE_ENABLED = True
-AUTOTHROTTLE_START_DELAY = 0.1
-AUTOTHROTTLE_MAX_DELAY = 10
-AUTOTHROTTLE_TARGET_CONCURRENCY = 8.0
+AUTOTHROTTLE_START_DELAY = 1.0
+AUTOTHROTTLE_MAX_DELAY = 60
+AUTOTHROTTLE_TARGET_CONCURRENCY = 1.0
 COMPRESSION_ENABLED = True
 
 # --- Retries (Scrapy's built-in RetryMiddleware) ---
 RETRY_ENABLED = True
 RETRY_TIMES = 3
-RETRY_HTTP_CODES = [500, 502, 503, 504, 408, 429]
+# 429 / 503 are handled by BackoffMiddleware instead (waits before retrying).
+RETRY_HTTP_CODES = [500, 502, 504, 408]
+BACKOFF_MAX_TRIES = 6
 
 # --- HTTP cache: speeds up repeated dev crawls, safe to disable for prod runs ---
 HTTPCACHE_ENABLED = True
 HTTPCACHE_EXPIRATION_SECS = 86400
 HTTPCACHE_DIR = "httpcache"
-HTTPCACHE_IGNORE_HTTP_CODES = [301, 302, 401, 403, 404, 500, 502, 503]
+HTTPCACHE_IGNORE_HTTP_CODES = [301, 302, 401, 403, 404, 429, 500, 502, 503]
 
 # --- Images ---
 IMAGES_STORE = "downloads"
@@ -86,6 +89,8 @@ ITEM_PIPELINES = {
 DOWNLOADER_MIDDLEWARES = {
     "scrapy.downloadermiddlewares.useragent.UserAgentMiddleware": None,
     "image_crawler.middlewares.RotateUserAgentMiddleware": 400,
+    # > 550 so it sees 429s before Scrapy's RetryMiddleware does
+    "image_crawler.middlewares.BackoffMiddleware": 560,
 }
 
 # Scrapy's debug telnet console isn't used, and it logs a one-time password every

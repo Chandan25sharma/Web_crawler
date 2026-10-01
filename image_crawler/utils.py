@@ -146,9 +146,10 @@ def _tidy(text: str, ext: str = "") -> str:
     text = unquote(text or "").strip()
     if ext and text.lower().endswith(ext.lower()):
         text = text[: -len(ext)]
+    # Hex IDs are noise everywhere (Webflow alt text is often "65e0..._Artboard 20").
+    text = _HEX_ID_RE.sub(" ", text).strip(" _-")
     if " " not in text:  # looks like a filename, not prose
-        text = _SIZE_SUFFIX_RE.sub("", _HEX_ID_RE.sub(" ", text))
-        text = re.sub(r"[-_.]+", " ", text)
+        text = re.sub(r"[-_.]+", " ", _SIZE_SUFFIX_RE.sub("", text))
         if text.islower():
             text = " ".join(w[:1].upper() + w[1:] for w in text.split())
     return " ".join(text.split())

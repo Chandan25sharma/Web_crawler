@@ -1,4 +1,5 @@
 import random
+from urllib.parse import urlparse
 
 
 class RotateUserAgentMiddleware:
@@ -19,3 +20,47 @@ class RotateUserAgentMiddleware:
 
     def process_request(self, request, spider):
         request.headers["User-Agent"] = random.choice(self.USER_AGENTS)
+
+
+class BackoffMiddleware:
+    """On 429 Too Many Requests / 503: slow the whole site down, then retry.
+
+    Scrapy's RetryMiddleware retries instantly, so a rate-limited site just
+    answers 429 again and the file is lost. Here the site's download slot gets
+    a delay (the server's Retry-After if it sends one, else 5s, 10s, 20s, ...
+    capped at 5 min) that applies to every following request to that host;
+    AutoThrottle eases it back down once responses are OK again.
+    """
+
+    CODES = (429, 503)
+
+    def __init__(self, crawler):
+        self.crawler = crawler
+        self.max_tries = crawler.settings.getint("BACKOFF_MAX_TRIES", 6)
+
+    @classmethod
+    def from_crawler(cls, crawler):
+        return cls(crawler)
+
+    def process_response(self, request, response, spider=None):
+        if response.status not in self.CODES:
+            return response
+        tries = request.meta.get("backoff_tries", 0) + 1
+        if tries > self.max_tries:
+            return response  # give up; the pipeline logs the failure
+
+        retry_after = response.headers.get("Retry-After", b"").decode(errors="ignore").strip()
+        wait = float(retry_after) if retry_after.isdigit() else min(5 * 2 ** (tries - 1), 300)
+        wait = min(wait, 300)
+
+        key = request.meta.get("download_slot") or urlparse(request.url).hostname
+        slot = self.crawler.engine.downloader.slots.get(key)
+        if slot is not None:
+            slot.delay = max(slot.delay, wait)
+        self.crawler.spider.logger.info(
+            "%s from %s -- waiting %ss between requests, retry %d/%d: %s",
+            response.status, key, int(wait), tries, self.max_tries, request.url,
+        )
+        new_request = request.replace(dont_filter=True)
+        new_request.meta["backoff_tries"] = tries
+        return new_request
