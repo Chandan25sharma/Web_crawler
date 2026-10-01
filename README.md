@@ -26,7 +26,8 @@ Almost everything here is stock Scrapy, configured rather than reimplemented:
 | Video discovery | `<video>`/`<source>` tags (even extensionless URLs when `type="video/..."`), `<video poster>`, Webflow `data-video-urls` backgrounds, `og:video` meta, `<a href="clip.mp4">` links, and JSON-LD `contentUrl`s — see [Videos](#videos) |
 | File names / descriptions | alt / `aria-label` / `title` attributes, link text, and JSON-LD `name` / `description`; saved to `title` / `alt_text` in the metadata |
 | PDFs / ebooks | `--documents` (or the "Include PDFs / ebooks" checkbox) adds `pdf epub azw3 mobi` (or your own list) to the allowed extensions; found mainly via `<a href>` links — see [Documents](#documents--ebooks) |
-| Big files | `DOWNLOAD_TIMEOUT = 600` s per file, `DOWNLOAD_MAXSIZE` (1 GB) skips anything larger |
+| Big files | No time or size limit: `DOWNLOAD_TIMEOUT` = 7 days, `DOWNLOAD_MAXSIZE = 0` |
+| Rate limits (HTTP 429/503) | `BackoffMiddleware` waits as long as the site asks (`Retry-After`, else 5 s doubling), retries up to 6 times, and stops the crawl if a site refuses 20 requests in a row |
 | Embedded video (YouTube/Vimeo iframes) | Recorded as a reference only — never downloaded, since there's no raw file behind an iframe embed, just a link to a third-party player |
 | Keyword filtering | Hardcoded `KEYWORDS` list in `settings.py`; matched against alt text / title / page title / URL |
 | Proxy support | Scrapy's built-in `HttpProxyMiddleware`, driven by the standard `http_proxy`/`https_proxy` env vars (`--proxy` sets them for you) |
@@ -150,9 +151,9 @@ switches to images only (dashboard: untick "Videos"). Allowed extensions: `mp4 w
 | YouTube / Vimeo `<iframe>` | no — recorded in `embedded_videos.csv` only |
 | Loaded later by JavaScript | no — see [below](#extending-imagevideo-extraction) |
 
-Some sites host huge files (samplelib/truefilesize go up to 1 GB). Lower
-`DOWNLOAD_MAXSIZE` in `settings.py` (e.g. `100 * 1024 * 1024`) to skip them;
-oversized files are cancelled before download and logged.
+There is no time or size limit on any file: a 1 GB video downloads as long
+as your connection needs. To skip huge files, set `DOWNLOAD_MAXSIZE` in
+`settings.py` (e.g. `100 * 1024 * 1024`).
 
 ### Documents / ebooks
 
@@ -164,8 +165,8 @@ title and the page title (usually the book name) is kept too.
 # every PDF on a site, no images/videos
 python run_spider.py --start https://samplelib.com/sample-pdf.html --documents pdf --no-images --no-videos
 
-# public-domain ebooks (EPUB only), whole catalogue
-python run_spider.py --start https://standardebooks.org/ebooks --documents epub --no-images --no-videos --depth 0
+# a site's whole catalogue of EPUBs
+python run_spider.py --start https://example.org/ebooks --documents epub --no-images --no-videos --depth 0
 ```
 
 Notes:
@@ -175,9 +176,11 @@ Notes:
   several EPUB flavours give you several files per book. Pick extensions with
   `--documents epub,azw3` etc.
 - Standard Ebooks publishes EPUB/AZW3/KEPUB, **not PDF**.
-- Before pointing this at someone else's site, lower `CONCURRENT_REQUESTS`
-  / `CONCURRENT_REQUESTS_PER_DOMAIN` and raise `DOWNLOAD_DELAY` in
-  `settings.py` (the defaults are tuned for crawling your own site).
+- Standard Ebooks only allows bulk downloading for Patrons Circle members;
+  other IPs get HTTP 429 on book files after a few downloads. That's an
+  access rule, not a speed problem: the crawler stops after 20 refusals in a
+  row. Use their [bulk downloads](https://standardebooks.org/bulk-downloads)
+  or download individual books from the site.
 
 ### Output
 

@@ -26,16 +26,14 @@ KEYWORDS: list[str] = [""]  # type: ignore
 # --- Politeness / performance ---
 # Scrapy has no literal "worker" processes to add -- it's a single async event
 # loop that already sends many requests concurrently. These are the actual
-# speed knobs. Defaults are polite enough for third-party sites (fast sites
-# answer "429 Too Many Requests" otherwise). Crawling your OWN site and want
-# speed? Use 32 / 16 / 0.1 / 0.1 / 8.0 instead.
-CONCURRENT_REQUESTS = 8
-CONCURRENT_REQUESTS_PER_DOMAIN = 2
-DOWNLOAD_DELAY = 1.0
-AUTOTHROTTLE_ENABLED = True
-AUTOTHROTTLE_START_DELAY = 1.0
-AUTOTHROTTLE_MAX_DELAY = 60
-AUTOTHROTTLE_TARGET_CONCURRENCY = 1.0
+# speed knobs. No artificial delays: speed is limited only by your connection
+# and the site. If a site answers "429 Too Many Requests", BackoffMiddleware
+# waits as long as that site asks, then retries. For a gentler crawl of
+# someone else's site: CONCURRENT_REQUESTS_PER_DOMAIN = 2, DOWNLOAD_DELAY = 1.0.
+CONCURRENT_REQUESTS = 32
+CONCURRENT_REQUESTS_PER_DOMAIN = 16
+DOWNLOAD_DELAY = 0
+AUTOTHROTTLE_ENABLED = False
 COMPRESSION_ENABLED = True
 
 # --- Retries (Scrapy's built-in RetryMiddleware) ---
@@ -44,6 +42,8 @@ RETRY_TIMES = 3
 # 429 / 503 are handled by BackoffMiddleware instead (waits before retrying).
 RETRY_HTTP_CODES = [500, 502, 504, 408]
 BACKOFF_MAX_TRIES = 6
+# Stop the crawl when one site refuses this many requests in a row (quota, not speed).
+BACKOFF_STOP_AFTER = 20
 
 # --- HTTP cache: speeds up repeated dev crawls, safe to disable for prod runs ---
 HTTPCACHE_ENABLED = True
@@ -67,11 +67,12 @@ EMBEDDED_VIDEO_DOMAINS = ["youtube.com", "youtu.be", "vimeo.com", "player.vimeo.
 ALLOWED_DOCUMENT_EXTENSIONS: list[str] = []
 # ALLOWED_DOCUMENT_EXTENSIONS = ["pdf", "epub", "azw3", "mobi"]
 
-# Video files are big: give each download up to 10 minutes (Scrapy default is 3).
-DOWNLOAD_TIMEOUT = 600
-# Skip any single file bigger than this. Scrapy's default is 1 GB; lower it
-# (e.g. 100 * 1024 * 1024) for sites that host huge sample/raw videos.
-DOWNLOAD_MAXSIZE = 1024 * 1024 * 1024
+# --- No time or size limits on downloads ---
+# A big video/PDF takes as long as your connection needs. Scrapy treats 0 as
+# "use the 3-minute default", so "no timeout" is spelled as 7 days here.
+DOWNLOAD_TIMEOUT = 7 * 24 * 3600
+DOWNLOAD_MAXSIZE = 0   # 0 = no size limit
+DOWNLOAD_WARNSIZE = 0  # 0 = no "large file" warnings
 
 # --- Crawl state / metadata output ---
 SQLITE_DB_PATH = "crawl_state.db"

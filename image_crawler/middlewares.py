@@ -1,5 +1,8 @@
 import random
+from collections import Counter
 from urllib.parse import urlparse
+
+from scrapy.utils.defer import deferred_from_coro
 
 
 class RotateUserAgentMiddleware:
@@ -30,6 +33,10 @@ class BackoffMiddleware:
     a delay (the server's Retry-After if it sends one, else 5s, 10s, 20s, ...
     capped at 5 min) that applies to every following request to that host;
     AutoThrottle eases it back down once responses are OK again.
+
+    If a host refuses BACKOFF_STOP_AFTER requests in a row, it isn't a speed
+    problem but a quota / access rule (e.g. downloads reserved for members),
+    so the crawl is stopped instead of retrying for hours.
     """
 
     CODES = (429, 503)
@@ -37,13 +44,27 @@ class BackoffMiddleware:
     def __init__(self, crawler):
         self.crawler = crawler
         self.max_tries = crawler.settings.getint("BACKOFF_MAX_TRIES", 6)
+        self.stop_after = crawler.settings.getint("BACKOFF_STOP_AFTER", 20)
+        self.refused_in_a_row: Counter[str] = Counter()
 
     @classmethod
     def from_crawler(cls, crawler):
         return cls(crawler)
 
     def process_response(self, request, response, spider=None):
+        key = request.meta.get("download_slot") or urlparse(request.url).hostname
         if response.status not in self.CODES:
+            self.refused_in_a_row[key] = 0
+            return response
+        self.refused_in_a_row[key] += 1
+        if self.refused_in_a_row[key] >= self.stop_after:
+            self.crawler.spider.logger.error(
+                "%s refused %d requests in a row (HTTP %s). This site is limiting or "
+                "blocking downloads, not just asking us to slow down -- stopping the crawl. "
+                "Check whether it offers an official bulk download instead.",
+                key, self.refused_in_a_row[key], response.status,
+            )
+            deferred_from_coro(self.crawler.engine.close_spider_async(reason="rate_limited"))
             return response
         tries = request.meta.get("backoff_tries", 0) + 1
         if tries > self.max_tries:
@@ -53,7 +74,6 @@ class BackoffMiddleware:
         wait = float(retry_after) if retry_after.isdigit() else min(5 * 2 ** (tries - 1), 300)
         wait = min(wait, 300)
 
-        key = request.meta.get("download_slot") or urlparse(request.url).hostname
         slot = self.crawler.engine.downloader.slots.get(key)
         if slot is not None:
             slot.delay = max(slot.delay, wait)
