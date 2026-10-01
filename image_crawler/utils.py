@@ -5,6 +5,7 @@ Kept as plain functions (no classes) so they are trivial to unit test.
 from __future__ import annotations
 
 import hashlib
+import os
 import re
 import sqlite3
 from urllib.parse import unquote, urlparse
@@ -117,3 +118,69 @@ def get_db_connection(db_path: str) -> sqlite3.Connection:
     conn.execute("CREATE INDEX IF NOT EXISTS idx_content_hash ON images(content_hash)")
     conn.commit()
     return conn
+
+
+# Link/label words that say nothing about the file itself ("Download", "Compatible epub").
+_GENERIC_WORDS = {
+    "download", "downloads", "click", "here", "view", "open", "read", "now", "free", "file",
+    "files", "link", "image", "img", "photo", "picture", "video", "play", "watch", "get", "the",
+    "pdf", "epub", "kepub", "azw3", "mobi", "kindle", "kobo", "compatible", "advanced", "ebook",
+    "book", "mp4", "webm", "mov", "jpg", "jpeg", "png", "gif", "webp", "svg", "untitled", "logo",
+}
+_HEX_ID_RE = re.compile(r"(?<![0-9a-z])[0-9a-f]{16,}(?![0-9a-z])", re.IGNORECASE)
+_SIZE_SUFFIX_RE = re.compile(r"[-_]p[-_]\d+$", re.IGNORECASE)  # Webflow responsive "-p-1080"
+_WINDOWS_BAD_RE = re.compile(r'[<>:"/\|?*\x00-\x1f]+')
+_PAGE_TITLE_SPLIT_RE = re.compile(r"\s+[-|–—·]\s+")
+
+
+def _words(text: str) -> list[str]:
+    return re.findall(r"[^\W_]+", (text or "").lower())
+
+
+def _meaningful(text: str) -> bool:
+    return any(w not in _GENERIC_WORDS and not w.isdigit() for w in _words(text))
+
+
+def _tidy(text: str, ext: str = "") -> str:
+    """Filename-ish label -> words: drop the extension, hex IDs, size suffixes, -/_ separators."""
+    text = unquote(text or "").strip()
+    if ext and text.lower().endswith(ext.lower()):
+        text = text[: -len(ext)]
+    if " " not in text:  # looks like a filename, not prose
+        text = _SIZE_SUFFIX_RE.sub("", _HEX_ID_RE.sub(" ", text))
+        text = re.sub(r"[-_.]+", " ", text)
+        if text.islower():
+            text = " ".join(w[:1].upper() + w[1:] for w in text.split())
+    return " ".join(text.split())
+
+
+def readable_stem(url: str, alt: str = "", title: str = "", page_title: str = "", max_len: int = 90) -> str:
+    """A human-readable filename (no extension) for a downloaded file.
+
+    Order: alt text / link title if they say something (short one first), then the page title when
+    it's a nicer spelling of the URL's filename (e.g. "The Final Count, by H. C.
+    McNeile" for h-c-mcneile_the-final-count.epub), then the tidied filename,
+    then the page title. Always returns something usable on Windows.
+    """
+    base = os.path.basename(urlparse(url).path)
+    ext = os.path.splitext(base)[1]
+    from_url = _tidy(base, ext)
+    heading = next((p for p in _PAGE_TITLE_SPLIT_RE.split(page_title or "") if p.strip()), "").strip()
+
+    url_words = set(_words(from_url))
+    heading_is_nicer = bool(url_words) and url_words <= set(_words(heading))
+
+    alt, title = _tidy(alt, ext), _tidy(title, ext)
+    # A long alt is usually a description sentence; a short meaningful title reads better.
+    labels = (title, alt) if len(alt) > 60 and _meaningful(title) else (alt, title)
+    for label in labels:
+        if _meaningful(label):
+            break
+    else:
+        label = heading if heading_is_nicer else (from_url if _meaningful(from_url) else heading or from_url)
+
+    label = _WINDOWS_BAD_RE.sub(" ", label)
+    label = " ".join(label.split()).strip(" .")
+    if len(label) > max_len:
+        label = label[:max_len].rsplit(" ", 1)[0]
+    return label or "file"
