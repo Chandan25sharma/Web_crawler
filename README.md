@@ -1,7 +1,7 @@
 # image_crawler
 
 A Scrapy project that crawls a public website (staying within its domain) and
-downloads every image and video file it can find, with names/descriptions
+downloads every image, video and (optionally) PDF/ebook file it can find, with names/descriptions
 taken from the page, resumable state, CSV/JSON metadata export, keyword
 filtering, and a local web dashboard.
 
@@ -25,6 +25,7 @@ Almost everything here is stock Scrapy, configured rather than reimplemented:
 | Image/video download, retry-on-fail | Scrapy's `ImagesPipeline`, subclassed as `DedupImagesPipeline` (SVG and video files bypass Pillow and are stored as raw bytes, since Pillow can't decode them) |
 | Video discovery | `<video>`/`<source>` tags (even extensionless URLs when `type="video/..."`), `<video poster>`, Webflow `data-video-urls` backgrounds, `og:video` meta, `<a href="clip.mp4">` links, and JSON-LD `contentUrl`s — see [Videos](#videos) |
 | File names / descriptions | alt / `aria-label` / `title` attributes, link text, and JSON-LD `name` / `description`; saved to `title` / `alt_text` in the metadata |
+| PDFs / ebooks | `--documents` (or the "Include PDFs / ebooks" checkbox) adds `pdf epub azw3 mobi` (or your own list) to the allowed extensions; found mainly via `<a href>` links — see [Documents](#documents--ebooks) |
 | Big files | `DOWNLOAD_TIMEOUT = 600` s per file, `DOWNLOAD_MAXSIZE` (1 GB) skips anything larger |
 | Embedded video (YouTube/Vimeo iframes) | Recorded as a reference only — never downloaded, since there's no raw file behind an iframe embed, just a link to a third-party player |
 | Keyword filtering | Hardcoded `KEYWORDS` list in `settings.py`; matched against alt text / title / page title / URL |
@@ -102,6 +103,8 @@ scrapy crawl imagespider
 --obey-robots / --ignore-robots        override ROBOTSTXT_OBEY for this run
 --proxy URL                  route requests through this proxy, e.g. http://user:pass@host:port
 --include-videos / --no-videos  collect direct video files + record iframe embeds (on by default)
+--documents [pdf,epub,...]     also download documents/ebooks (bare flag = pdf,epub,azw3,mobi)
+--no-images                  skip images, e.g. books or videos only
 --keywords "a,b,c"             comma-separated filter for this run (overrides settings.py KEYWORDS; blank = everything)
 ```
 
@@ -150,6 +153,31 @@ switches to images only. Allowed extensions: `mp4 webm mov m4v ogv`.
 Some sites host huge files (samplelib/truefilesize go up to 1 GB). Lower
 `DOWNLOAD_MAXSIZE` in `settings.py` (e.g. `100 * 1024 * 1024`) to skip them;
 oversized files are cancelled before download and logged.
+
+### Documents / ebooks
+
+Off by default. Turn on with `--documents` (or tick "Include PDFs / ebooks" in
+the dashboard). Saved as `media_type = document`; the link text becomes the
+title and the page title (usually the book name) is kept too.
+
+```bash
+# every PDF on a site, no images/videos
+python run_spider.py --start https://samplelib.com/sample-pdf.html --documents pdf --no-images --no-videos
+
+# public-domain ebooks (EPUB only), whole catalogue
+python run_spider.py --start https://standardebooks.org/ebooks --documents epub --no-images --no-videos --depth 0
+```
+
+Notes:
+- `--depth 0` means **unlimited** — needed for paginated catalogues
+  (`?page=2`, `?page=3`, ...), but it crawls the entire site.
+- `.epub` also matches `.kepub.epub` and `_advanced.epub`, so sites offering
+  several EPUB flavours give you several files per book. Pick extensions with
+  `--documents epub,azw3` etc.
+- Standard Ebooks publishes EPUB/AZW3/KEPUB, **not PDF**.
+- Before pointing this at someone else's site, lower `CONCURRENT_REQUESTS`
+  / `CONCURRENT_REQUESTS_PER_DOMAIN` and raise `DOWNLOAD_DELAY` in
+  `settings.py` (the defaults are tuned for crawling your own site).
 
 ### Output
 
